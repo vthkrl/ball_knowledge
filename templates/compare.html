@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ball Knowledge</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="#">Ball Knowledge</a>
+            <div class="collapse navbar-collapse justify-content-end">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Live Games</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Welcome to Ball Knowledge</h1>
+        
+        <form method="POST" class="mt-4">
+            <div class="mb-3">
+                <label for="player1" class="form-label">Player 1</label>
+                <input type="text" id="player1" name="player1" class="form-control w-50 mx-auto" required autocomplete="off">
+            </div>
+            <div class="mb-3">
+                <label for="player2" class="form-label">Player 2</label>
+                <input type="text" id="player2" name="player2" class="form-control w-50 mx-auto" required autocomplete="off">
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Compare</button>
+            </div>
+        </form>
+
+        {% if table %}
+        <div class="row mt-5">
+            <!-- Player 1 Image -->
+            <div class="col-md-6 text-center">
+                <h4>{{ p1 }}</h4>
+                <img src="{{ p1_image }}" alt="{{ p1 }}" class="img-fluid rounded" style="max-height: 150px;">
+            </div>
+            <!-- Player 2 Image -->
+            <div class="col-md-6 text-center">
+                <h4>{{ p2 }}</h4>
+                <img src="{{ p2_image }}" alt="{{ p2 }}" class="img-fluid rounded" style="max-height: 150px;">
+            </div>
+        </div>
+
+        <!-- Comparison Table -->
+        <div class="table-responsive mt-4">
+            {{ table | safe }}
+        </div>
+
+        {% elif error %}
+        <div class="alert alert-danger mt-5">{{ error }}</div>
+        {% endif %}
+    </div>
+</body>
+</html>
