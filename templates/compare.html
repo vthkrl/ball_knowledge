@@ -8,59 +8,126 @@
 </head>
 <body>
     <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container">
-            <a class="navbar-brand" href="#">Ball Knowledge</a>
-            <div class="collapse navbar-collapse justify-content-end">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Live Games</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+
+    {% include 'navbar.html' %}
 
     <!-- Main Content -->
     <div class="container mt-4">
         <h1 class="text-center mb-4">Welcome to Ball Knowledge</h1>
         
-        <form method="POST" class="mt-4">
-            <div class="mb-3">
+        <form method="POST" class="mt-4" id="compareForm">
+            <div class="mb-3 position-relative">
                 <label for="player1" class="form-label">Player 1</label>
-                <input type="text" id="player1" name="player1" class="form-control w-50 mx-auto" required autocomplete="off">
+                <input type="text" id="player1" name="player1" class="form-control w-50 mx-auto" required autocomplete="off" onkeyup="fetchPlayerSuggestions(this.value, 'player1-suggestions')">
+                <ul id="player1-suggestions" class="list-group position-absolute start-50 translate-middle-x w-50" style="z-index: 1000;"></ul>
             </div>
-            <div class="mb-3">
+            
+            <div class="mb-3 position-relative">
                 <label for="player2" class="form-label">Player 2</label>
-                <input type="text" id="player2" name="player2" class="form-control w-50 mx-auto" required autocomplete="off">
+                <input type="text" id="player2" name="player2" class="form-control w-50 mx-auto" required autocomplete="off" onkeyup="fetchPlayerSuggestions(this.value, 'player2-suggestions')">
+                <ul id="player2-suggestions" class="list-group position-absolute start-50 translate-middle-x w-50" style="z-index: 1000;"></ul>
+            </div>            
+                        
+            <div class="mb-3">
+                <label for="statsType" class="form-label">Statistics Type</label>
+                <select id="statsType" name="statsType" class="form-select w-50 mx-auto">
+                    <option value="current">Current Season Stats</option>
+                    <option value="career">Career Stats</option>
+                </select>
             </div>
             <div class="text-center">
                 <button type="submit" class="btn btn-primary">Compare</button>
             </div>
         </form>
-
+        
         {% if table %}
         <div class="row mt-5">
-            <!-- Player 1 Image -->
             <div class="col-md-6 text-center">
                 <h4>{{ p1 }}</h4>
                 <img src="{{ p1_image }}" alt="{{ p1 }}" class="img-fluid rounded" style="max-height: 150px;">
             </div>
-            <!-- Player 2 Image -->
             <div class="col-md-6 text-center">
                 <h4>{{ p2 }}</h4>
                 <img src="{{ p2_image }}" alt="{{ p2 }}" class="img-fluid rounded" style="max-height: 150px;">
             </div>
         </div>
-
-        <!-- Comparison Table -->
-        <div class="table-responsive mt-4">
+        <div class="mt-4">  
             {{ table | safe }}
         </div>
-
         {% elif error %}
         <div class="alert alert-danger mt-5">{{ error }}</div>
         {% endif %}
     </div>
+
+    <script>
+        // Set the stats type select to the last used value if it exists
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const statsType = urlParams.get('statsType');
+            if (statsType) {
+                document.getElementById('statsType').value = statsType;
+            }
+        }
+
+        
+    </script>
+
+    <script>
+        function fetchPlayerSuggestions(query, listId) {
+            if (query.length < 2) {
+                document.getElementById(listId).innerHTML = '';
+                return;
+            }
+
+            fetch(`/player_suggestions?query=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    const suggestionList = document.getElementById(listId);
+                    suggestionList.innerHTML = '';  // Clear previous suggestions
+
+                    data.forEach(player => {
+                        let listItem = document.createElement('li');
+                        listItem.classList.add('list-group-item', 'd-flex', 'align-items-center');
+
+                        // Add player image
+                        let playerImage = document.createElement('img');
+                        playerImage.src = player[1];  // Correct usage of image URL
+                        playerImage.alt = player[0];
+                        playerImage.classList.add('me-2', 'rounded-circle');
+                        playerImage.style.width = '55px';
+                        playerImage.style.height = '40px';
+
+                        // Add player name text
+                        let playerName = document.createElement('span');
+                        playerName.textContent = player[0];
+
+                        listItem.appendChild(playerImage);
+                        listItem.appendChild(playerName);
+
+                        listItem.onclick = function() {
+                            document.getElementById(listId.replace('-suggestions', '')).value = player[0];
+                            suggestionList.innerHTML = '';  // Clear suggestions after selection
+                        };
+
+                        suggestionList.appendChild(listItem);
+                    });
+                })
+                .catch(error => console.error('Error fetching player suggestions:', error));
+        }
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.mb-3')) {
+                document.getElementById('player1-suggestions').innerHTML = '';
+                document.getElementById('player2-suggestions').innerHTML = '';
+            }
+        });
+    </script>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+
+    {% include 'legal_footer.html' %}
 </body>
 </html>

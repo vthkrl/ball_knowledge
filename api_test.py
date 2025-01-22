@@ -1,7 +1,3 @@
-from nba_api.stats.endpoints import drafthistory
-import json
-import pandas as pd
+from nba_api.stats.endpoints import playbyplay
+from enum import Enum
 
-draft = drafthistory.DraftHistory()
-
-print(type(draft.get_json()))

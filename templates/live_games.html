@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live NBA Games</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
+    <script>
+        var refreshRate = 5000;  // Refresh interval in milliseconds
+    
+        function updateLiveGames() {
+            fetch('/update_live_games')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(game => {
+                        const card = document.getElementById(`${game.gameId}-${game.home_team}-v-${game.away_team}`);
+                        if (card) {
+                            card.querySelector('.card-text strong:nth-child(1)').nextSibling.textContent = ` ${game.away_score} - ${game.home_score}`;
+                            card.querySelector('.card-text strong:nth-child(3)').nextSibling.textContent = ` ${game.period} | `;
+                            card.querySelector('.card-text strong:nth-child(5)').nextSibling.textContent = ` ${game.time_left}`;
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error("Error updating live games:", error);
+                });
+        }
+
+        // Refresh scores every 5 seconds
+        setInterval(updateLiveGames, 5000);
+
+    
+        // Helper function to format the NBA API game clock from PT00M00.00S to MM:SS
+        function formatGameClock(timeStr) {
+            const match = timeStr.match(/PT(\d+)M([\d.]+)S/);
+            if (match) {
+                const minutes = match[1].padStart(2, '0');
+                const seconds = Math.floor(parseFloat(match[2])).toString().padStart(2, '0');
+                return `${minutes}:${seconds}`;
+            }
+            return "00:00";  // Default if format is incorrect
+        }
+    
+        // Automatically refresh the game scores every few seconds
+        setInterval(updateLiveGames, refreshRate);
+    </script>    
+</head>
+<body>
+    <!-- Navigation Bar -->
+
+    {% include 'navbar.html' %}
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Live NBA Games</h1>
+    
+        {% if games %}
+            <div class="row justify-content-center">
+                {% for game in games %}
+                <a href="/boxscore/{{ game.gameId }}" style="text-decoration: none; width: 100%;">
+                    <div class="col-12 mb-3" id="{{ game.gameId }}-{{ game.home_team }}-v-{{ game.away_team }}">
+                        <div class="card text-center shadow-sm" style="max-width: 800px; margin: auto;">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center justify-content-center mb-3">
+                                    <img src="https://cdn.nba.com/logos/nba/{{ game.away_team_id }}/primary/L/logo.svg" 
+                                        alt="{{ game.away_team }}" 
+                                        class="img-fluid me-2" 
+                                        style="height: 50px;">
+                                    <h5 class="card-title m-0">{{ game.away_team }}</h5>
+                                    <h5 class="mx-2">@</h5>
+                                    <h5 class="card-title m-0">{{ game.home_team }}</h5>
+                                    <img src="https://cdn.nba.com/logos/nba/{{ game.home_team_id }}/primary/L/logo.svg" 
+                                        alt="{{ game.home_team }}" 
+                                        class="img-fluid ms-2" 
+                                        style="height: 50px;">
+                                </div>
+                                <p class="card-text">
+                                    <strong>Score:</strong> {{ game.away_score }} - {{ game.home_score }}
+                                </p>
+                                <p class="card-text">
+                                    <strong>Period:</strong> {{ game.period }} | 
+                                    <strong>Time Left:</strong> {{ game.time_left }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-center">No live games currently available.</p>
+        {% endif %}
+    </div>
+    
+    {% include 'legal_footer.html' %}
+
+</body>
+</html>
