@@ -3,11 +3,46 @@ from nba_api.stats.endpoints import drafthistory
 from nba_api.stats.static import players
 from nba_api.stats.endpoints import playerawards
 from nba_api.stats.static import teams
+from nba_api.stats.endpoints import leaguestandings
 import pandas as pd
 
 #['PLAYER_ID', 'SEASON_ID', 'LEAGUE_ID', 'TEAM_ID', 'TEAM_ABBREVIATION', 'PLAYER_AGE', 'GP', 'GS', 'MIN', 
 # 'FGM', 'FGA', 'FG_PCT', 'FG3M', 'FG3A', 'FG3_PCT', 'FTM', 'FTA', 'FT_PCT', 'OREB', 'DREB', 'REB', 'AST', 'STL', 'BLK', 
 # 'TOV', 'PF', 'PTS']
+
+def leagueStandings():
+    ls = leaguestandings.LeagueStandings().get_data_frames()[0]
+    west = []
+    east = []
+
+    west_leader = ls[ls['Conference'] == 'West'].nlargest(1, 'WINS').iloc[0]
+    east_leader = ls[ls['Conference'] == 'East'].nlargest(1, 'WINS').iloc[0]
+
+    for _, row in ls.iterrows():
+        gb = (west_leader['WINS'] - row['WINS'] + row['LOSSES'] - west_leader['LOSSES']) / 2 if row['Conference'] == 'West' else \
+             (east_leader['WINS'] - row['WINS'] + row['LOSSES'] - east_leader['LOSSES']) / 2
+        
+        team_data = {
+            'teamId': row['TeamID'],
+            'teamCity': row['TeamCity'],
+            'teamName': row['TeamName'],
+            'conference': row['Conference'],
+            'playoffRank': row['PlayoffRank'],
+            'record': f"{row['WINS']} - {row['LOSSES']}",
+            'wins': row['WINS'],
+            'losses': row['LOSSES'],
+            'winPct': row['WinPCT'],
+            'GB': gb if gb > 0 else 0.0
+        }
+
+        if row['Conference'] == 'West':
+            west.append(team_data)
+        else:
+            east.append(team_data)
+
+    return {'east': east, 'west': west}
+
+
 
 def getDraftHistory(p_id: int):
     draft = drafthistory.DraftHistory().get_data_frames()[0]

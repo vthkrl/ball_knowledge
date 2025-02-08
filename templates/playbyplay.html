@@ -1,6 +1,6 @@
 <div class="mt-4">
     <h3 class="text-center">Play-by-Play</h3>
-    <div id="play-by-play" class="p-2 border rounded" style="height: 400px; overflow-y: auto; background-color: #f8f9fa;">
+    <div id="play-by-play" class="p-2 border rounded">
         <!-- Play-by-play entries will be dynamically inserted here -->
     </div>
 </div>
@@ -18,46 +18,32 @@
 
     function updatePlayByPlay(gameId) {
         fetch(`/get_play_by_play/${gameId}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
                 const container = document.getElementById('play-by-play');
-                container.innerHTML = '';  // Clear previous entries
+                container.innerHTML = ''; // Clear previous entries
 
                 data.plays.slice().forEach(play => {
                     const playElement = document.createElement('div');
-                    playElement.className = 'd-flex justify-content-between align-items-center border-bottom py-2';
+                    playElement.className = 'd-flex justify-content-between align-items-center border-bottom py-2 play-entry';
 
-                    let imgElement;
+                    let imgElement = document.createElement('img');
                     if (play.personId) {
-                        imgElement = document.createElement('img');
                         imgElement.src = `https://cdn.nba.com/headshots/nba/latest/1040x760/${play.personId}.png`;
-                        imgElement.alt = "Player";
-                        imgElement.className = "img-fluid me-2";
-                        imgElement.style.maxHeight = "50px";
-                        imgElement.onerror = () => { 
-                            imgElement.src = "https://via.placeholder.com/50"; 
-                        };  // Fallback image 
-                    } else {
-                        imgElement = document.createElement('img');
+                    } else if (play.teamId) {
                         imgElement.src = `https://cdn.nba.com/logos/nba/${play.teamId}/primary/L/logo.svg`;
-                        imgElement.alt = "Team";
-                        imgElement.className = "img-fluid me-2";
-                        imgElement.style.maxHeight = "50px";
+                    } else {
+                        imgElement.src = "https://www.flaticon.com/free-icons/timer";
                     }
+                    imgElement.className = "img-fluid me-2";
+                    imgElement.style.maxHeight = "50px";
 
                     const playText = document.createElement('div');
                     playText.textContent = play.description;
                     playText.className = "flex-grow-1";
 
                     const timeText = document.createElement('div');
-                    const period = play.period ? `Period ${play.period}` : "N/A";
-                    const clock = play.clock ? formatGameClock(play.clock) : "00:00";
-                    timeText.textContent = `${period}, ${clock}`;
+                    timeText.textContent = `${play.period ? `Period ${play.period}` : "N/A"}, ${formatGameClock(play.clock)}`;
                     timeText.className = "text-muted small";
 
                     playElement.appendChild(imgElement);
@@ -66,15 +52,38 @@
                     
                     container.prepend(playElement);
                 });
+
+                applyDarkMode(); // Ensure dark mode is applied
             })
             .catch(error => console.error('Error fetching play-by-play:', error));
     }
 
     document.addEventListener('DOMContentLoaded', function () {
         const gameId = "{{ gameDetails['gameId'] }}";
-
         updatePlayByPlay(gameId);
+        applyDarkMode(); // Ensure dark mode on load
 
         setInterval(() => updatePlayByPlay(gameId), 5000);
     });
 </script>
+
+<style>
+    /* Default light mode */
+    #play-by-play {
+        height: 400px;
+        overflow-y: auto;
+        background-color: #f8f9fa;
+        color: #000;
+    }
+
+    /* Dark mode styling */
+    .dark-mode #play-by-play {
+        background-color: #1e1e1e;
+        color: #fff;
+        border-color: #444;
+    }
+
+    .dark-mode .play-entry {
+        border-bottom: 1px solid #444;
+    }
+</style>

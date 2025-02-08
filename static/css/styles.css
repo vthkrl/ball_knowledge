@@ -1,0 +1,134 @@
+/* Default Light Mode Styles */
+body {
+    background-color: #ffffff;
+    color: #000000;
+    font-family: Arial, sans-serif;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Dark Mode Styles */
+.dark-mode {
+    background-color: #121212 !important;
+    color: #ffffff !important;
+}
+
+/* Ensure all text is white in dark mode */
+.dark-mode * {
+    color: #ffffff !important;
+}
+
+/* Navbar */
+.navbar {
+    background-color: #f8f9fa;
+    transition: background-color 0.3s;
+}
+
+.dark-mode .navbar {
+    background-color: #222 !important;
+}
+
+/* Buttons */
+.btn {
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.dark-mode .btn-primary {
+    background-color: #007bff !important;
+    border-color: #007bff !important;
+    color: #ffffff !important;
+}
+
+.dark-mode .btn-primary:hover {
+    background-color: #0056b3 !important;
+}
+
+/* Forms */
+.dark-mode input, 
+.dark-mode select, 
+.dark-mode textarea {
+    background-color: #222 !important;
+    color: #ffffff !important;
+    border: 1px solid #555 !important;
+}
+
+.dark-mode input::placeholder,
+.dark-mode textarea::placeholder {
+    color: #bbbbbb !important;
+}
+
+/* Tables */
+.dark-mode .table {
+    color: #ffffff !important;
+}
+
+.dark-mode .table thead {
+    background-color: #444 !important;
+}
+
+.dark-mode .table tbody tr {
+    background-color: #222 !important;
+}
+
+/* Lists */
+.dark-mode .list-group-item {
+    background-color: #222 !important;
+    color: #ffffff !important;
+}
+
+/* Cards */
+.dark-mode .card {
+    background-color: #222 !important;
+    color: #ffffff !important;
+}
+
+/* Alerts */
+.dark-mode .alert {
+    background-color: #333 !important;
+    color: #ffffff !important;
+    border-color: #555 !important;
+}
+
+/* Dropdowns */
+.dark-mode .dropdown-menu {
+    background-color: #222 !important;
+    color: #ffffff !important;
+    border: 1px solid #444 !important;
+}
+
+.dark-mode .dropdown-item {
+    color: #ffffff !important;
+}
+
+.dark-mode .dropdown-item:hover {
+    background-color: #333 !important;
+}
+
+/* Adjust Bootstrap classes */
+.dark-mode .bg-light {
+    background-color: #333 !important;
+}
+
+.dark-mode .text-dark {
+    color: #ffffff !important;
+}
+
+/* Fix any inline styles that set text to black */
+.dark-mode [style*="color: black"] {
+    color: #ffffff !important;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    flex: 1;
+}
+
+footer {
+    margin-top: auto;
+    width: 100%;
+}

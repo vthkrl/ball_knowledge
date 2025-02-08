@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NBA League Leaders</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="{{ url_for('static', filename='js/dark_mode.js') }}" defer></script>
+    <script>
+        function navigateToCategory() {
+            const category = document.getElementById('stat-category').value;
+            window.location.href = `/league-leaders/${category}`;
+        }
+
+        function applyDarkMode() {
+            if (localStorage.getItem("darkMode") === "enabled") {
+                document.body.classList.add("dark-mode");
+            }
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+            localStorage.setItem("darkMode", document.body.classList.contains("dark-mode") ? "enabled" : "disabled");
+        }
+
+        document.addEventListener('DOMContentLoaded', applyDarkMode);
+    </script>
+    <style>
+        /* General table styling */
+        .leaderboard-container {
+            max-width: 800px;
+            margin: auto;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .table {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .table th, .table td {
+            padding: 12px;
+            vertical-align: middle;
+        }
+
+        .table th {
+            background-color: #343a40;
+            color: white;
+            font-weight: 600;
+        }
+
+        .table img {
+            border-radius: 50%;
+        }
+
+        /* Dark mode */
+        body.dark-mode {
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        body.dark-mode .leaderboard-container {
+            background-color: #1e1e1e;
+        }
+
+        body.dark-mode .table {
+            background-color: #222;
+            color: white;
+        }
+
+        body.dark-mode .table th {
+            background-color: #2a2a2a;
+        }
+
+        body.dark-mode .table td {
+            border-color: #444;
+        }
+
+        body.dark-mode select, 
+        body.dark-mode .form-label {
+            color: #ffffff;
+            background-color: #333333;
+        }
+
+        body.dark-mode .navbar {
+            background-color: #222 !important;
+        }
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Leading the league in {{ category }}</h1>
+        <div class="text-center mb-4">
+            <label for="stat-category" class="form-label">Select Category:</label>
+            <select id="stat-category" class="form-select w-auto d-inline-block" onchange="navigateToCategory()">
+                {% for category in [
+                    'PPG', 'RPG', 'APG', 'SPG', 'BPG', '3PMPG', '3PAPG', 
+                    'FTMPG', 'FTAPG', 'FGMPG', 'MINPG', 
+                    'PTS', 'REB', 'AST', 'STL', 'BLK', 'TOV', 'FG_PCT', 'FG3_PCT', 'FT_PCT'
+                ] %}
+                    <option value="{{ category }}" {% if category == selected_category %}selected{% endif %}>
+                        {{ category }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="leaderboard-container">
+            <table class="table table-dark table-striped text-center">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Player</th>
+                        <th>Name</th>
+                        <th>Team</th>
+                        <th>{{ category }}</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body">
+                    {% for player in league_leaders %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>
+                                <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/{{ player['PLAYER_ID'] }}.png" 
+                                     class="rounded-circle" width="50" 
+                                     onerror="this.src='https://via.placeholder.com/50'">
+                            </td>
+                            <td>{{ player['PLAYER'] }}</td>
+                            <td>{{ player['TEAM'] }}</td>
+                            <td>{{ player[category] }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>            
+            </table>
+        </div>
+    </div>
+
+    {% include 'legal_footer.html' %}
+</body>
+</html>

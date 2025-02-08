@@ -8,10 +8,21 @@
         <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('standings') }}">Standings</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('live_games') }}">Live Games</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('compare') }}">Compare Players</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('league_leaders', category='PPG') }}">League Leaders</a>
+                </li>
+                <li class="nav-item">
+                    <button id="dark-mode-toggle" class="btn btn-outline-light ms-3">
+                        🌙 Dark Mode
+                    </button>                    
                 </li>
             </ul>
         </div>

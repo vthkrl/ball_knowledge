@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Performance</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="{{ url_for('static', filename='js/dark_mode.js') }}" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+
+    {% include 'navbar.html' %}
+
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Player Performance</h1>
+        
+        <div class="card mx-auto shadow-sm p-3" style="max-width: 600px;">
+            <div class="card-body text-center">
+                <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/{{ p_id }}.png" alt="{{ player_name }}" class="img-fluid rounded-circle mb-3" style="max-height: 150px;">
+                <h3 class="card-title">{{ player_name }}</h3>
+
+                <!-- Game Details -->
+                <div class="small text-muted mt-2">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <img src="https://cdn.nba.com/logos/nba/{{ gameDetails['awayTeamId'] }}/primary/L/logo.svg" alt="{{ gameDetails['awayTeamName'] }}" class="me-2" style="height: 30px;">
+                        <span class="mx-2">@</span>
+                        <img src="https://cdn.nba.com/logos/nba/{{ gameDetails['homeTeamId'] }}/primary/L/logo.svg" alt="{{ gameDetails['homeTeamName'] }}" class="ms-2" style="height: 30px;">
+                    </div>
+                    <div class="mt-1">Score: <strong>{{ gameDetails['awayTeamScore'] }} - {{ gameDetails['homeTeamScore'] }}</strong></div>
+                    <div class="mt-1"><strong>{{ gameDetails['gameStatusText'] }}</strong></div>
+                    <div class="mt-1">Time: <strong>{{ gameTimeLTZ }}</strong></div>
+                </div>
+
+                <!-- Player Stats -->
+                <div class="stats-container mt-3">
+                    <div class="row text-center gy-3">
+                        <div class="col-4">
+                            <h5 id="player-points">{{ stats['PTS'] }}</h5>
+                            <p class="text-muted small">PTS</p>
+                        </div>
+                        <div class="col-4">
+                            <h5 id="player-rebounds">{{ stats['REB'] }}</h5>
+                            <p class="text-muted small">REB</p>
+                        </div>
+                        <div class="col-4">
+                            <h5 id="player-assists">{{ stats['AST'] }}</h5>
+                            <p class="text-muted small">AST</p>
+                        </div>
+                    </div>
+
+                    <div class="row text-center gy-3">
+                        <div class="col-4">
+                            <h5 id="player-steals">{{ stats['STL'] }}</h5>
+                            <p class="text-muted small">STL</p>
+                        </div>
+                        <div class="col-4">
+                            <h5 id="player-blocks">{{ stats['BLK'] }}</h5>
+                            <p class="text-muted small">BLK</p>
+                        </div>
+                        <div class="col-4">
+                            <h5 id="player-fg">{{ stats['FGM'] }}-{{ stats['FGA'] }}</h5>
+                            <p class="text-muted small">FGM-FGA</p>
+                        </div>
+                    </div>
+
+                    <div class="row text-center gy-3">
+                        <div class="col-4">
+                            <h5 id="player-three">{{ stats['3PM'] }}-{{ stats['3PA'] }}</h5>
+                            <p class="text-muted small">3PM-3PA</p>
+                        </div>
+                        <div class="col-4">
+                            <h5 id="player-ft">{{ stats['FTM'] }}-{{ stats['FTA'] }}</h5>
+                            <p class="text-muted small">FTM-FTA</p>
+                        </div>
+                        <div class="col-4">
+                            <h5 id="player-mins"></h5>
+                            <p class="text-muted small">MIN</p>
+                        </div>
+                    </div>
+
+                    <div class="row text-center gy-3 justify-content-center">
+                        <div class="col-4">
+                            <h5 id="player-plusminus">{{ stats['+/-'] }}</h5>
+                            <p class="text-muted small">+/-</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .stats-container {
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+            margin-top: 20px;
+        }
+
+        .stats-container .row {
+            margin-bottom: 10px;
+        }
+
+        .stats-container h5 {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 1.25rem;
+        }
+
+        .stats-container p {
+            margin-bottom: 0;
+            font-size: 0.9rem;
+        }
+    </style>
+
+    <script>
+        var refreshRate = 5000;
+
+        function updatePlayerStats(gameId, playerId) {
+            fetch(`update_player_box/${gameId}/${playerId}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('player-points').textContent = data.statistics.PTS || '0';
+                    document.getElementById('player-rebounds').textContent = data.statistics.REB || '0';
+                    document.getElementById('player-assists').textContent = data.statistics.AST || '0';
+                    document.getElementById('player-steals').textContent = data.statistics.STL || '0';
+                    document.getElementById('player-blocks').textContent = data.statistics.BLK || '0';
+                    document.getElementById('player-fg').textContent = `${data.statistics.FGM}-${data.statistics.FGA}` || '0';
+                    document.getElementById('player-three').textContent = `${data.statistics["3PM"]}-${data.statistics["3PA"]}` || '0';
+                    document.getElementById('player-ft').textContent = `${data.statistics.FTM}-${data.statistics.FTA}` || '0';
+                    document.getElementById('player-plusminus').textContent = data.statistics["+/-"] || '0';
+                    document.getElementById('player-mins').textContent = formatMinutes(data.statistics.MIN) || '0';
+                })
+                .catch(error => console.error('Error updating player stats:', error));
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('player-mins').textContent = formatMinutes("{{ stats['MIN'] }}")
+            const gameId = "{{ game_id }}";
+            const playerId = "{{ p_id }}";
+            setInterval(() => updatePlayerStats(gameId, playerId), refreshRate);
+        });
+
+        function formatMinutes(durationStr) {
+        const match = durationStr.match(/PT(\d+)M/);
+        if (match) {
+            return parseInt(match[1], 10);
+        }
+        return 0;
+        }
+    </script>
+</body>
+</html>
