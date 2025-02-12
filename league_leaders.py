@@ -14,6 +14,7 @@ def getLeagueLeaders(category):
         '3PAPG': 'FG3A',
         'FTMPG': 'FTM',
         'FTAPG': 'FTA',
+        'FGAPG': 'FGA',
         'FGMPG': 'FGM',
         'MINPG': 'MIN'
     }
@@ -24,6 +25,9 @@ def getLeagueLeaders(category):
         ll[category] = (ll[per_game_stats[category]] / ll['GP']).round(1)
 
         data = ll.sort_values(category, ascending = False)
+
+        if category in ['3PMPG', '3PAPG', 'FTMPG', 'FTAPG', 'FGMPG', 'FGAPG']:
+            data[category] = data[category] * 100
 
         return data.to_dict(orient = 'records')
 

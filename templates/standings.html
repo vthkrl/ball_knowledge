@@ -69,6 +69,10 @@
             justify-content: center;
             gap: 10px;
         }
+
+        a {
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
@@ -96,10 +100,12 @@
                         <tr>
                             <td>{{ team['playoffRank'] }}</td>
                             <td>
-                                <div class="team-info">
-                                    <img src="https://cdn.nba.com/logos/nba/{{ team['teamId'] }}/primary/L/logo.svg" class="team-logo">
-                                    <span>{{ team['teamCity'] }} {{ team['teamName'] }}</span>
-                                </div>
+                                <a href="team-stats/{{ team['teamId'] }}">
+                                    <div class="team-info">
+                                        <img src="https://cdn.nba.com/logos/nba/{{ team['teamId'] }}/primary/L/logo.svg" class="team-logo">
+                                        <span>{{ team['teamCity'] }} {{ team['teamName'] }}</span>
+                                    </div>
+                                </a>
                             </td>
                             <td>{{ team['wins'] }} - {{ team['losses'] }}</td>
                             <td>{{ "%.3f"|format(team['winPct']) }}</td>
@@ -128,10 +134,12 @@
                         <tr>
                             <td>{{ team['playoffRank'] }}</td>
                             <td>
-                                <div class="team-info">
-                                    <img src="https://cdn.nba.com/logos/nba/{{ team['teamId'] }}/primary/L/logo.svg" class="team-logo">
-                                    <span>{{ team['teamCity'] }} {{ team['teamName'] }}</span>
-                                </div>
+                                <a href="team-stats/{{ team['teamId'] }}">
+                                    <div class="team-info">
+                                        <img src="https://cdn.nba.com/logos/nba/{{ team['teamId'] }}/primary/L/logo.svg" class="team-logo">
+                                        <span>{{ team['teamCity'] }} {{ team['teamName'] }}</span>
+                                    </div>
+                                </a>
                             </td>
                             <td>{{ team['wins'] }} - {{ team['losses'] }}</td>
                             <td>{{ "%.3f"|format(team['winPct']) }}</td>

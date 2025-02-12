@@ -62,10 +62,11 @@
       document.addEventListener('DOMContentLoaded', function () {
           const gameId = "{{ gameDetails['gameId'] }}";
 
+          updateBoxscore(gameId);
           document.querySelectorAll('.minutes').forEach(cell => {
             cell.textContent = formatMinutes(cell.textContent.trim() || '0')
           });
-          setInterval(() => updateBoxscore(gameId), refreshRate);
+          setInterval(() => {updateBoxscore(gameId), updatePlayByPlay(gameId)}, refreshRate);
       });
 
       function formatMinutes(durationStr) {
@@ -74,6 +75,11 @@
       }
   </script>
   <style>
+    #red-dot {
+      color: red;
+      display: inline;
+      font-size: 72px;
+    }
     table {
         border-collapse: separate;
         border-spacing: 0;
@@ -158,7 +164,11 @@
                       <td><a href="/{{ gameDetails['gameId'] }}/{{ player['personId'] }}"><img src="https://cdn.nba.com/headshots/nba/latest/1040x760/{{ player['personId'] }}.png" alt="{{ player['firstName'] }}" class="img-fluid" style="max-height: 75px;"></a>
                         <div>{{ player['firstName'] }} {{ player['familyName'] }}</div></td>
                       {% if player.get('played', 0) | int == 1 %}
-                        <td class="minutes">{{ player['statistics']['minutesCalculated'] }}</td>
+                        {% if player.get('oncourt', 0) | int == 1 %}
+                          <td class="minutes">{{ player['statistics']['minutesCalculated'] }}<span id='red-dot'>.</span></td>
+                        {% else %}
+                          <td class="minutes">{{ player['statistics']['minutesCalculated'] }}</td>
+                        {% endif %}
                         <td class="points">{{ player['statistics']['points'] }}</td>
                         <td class="rebounds">{{ player['statistics']['reboundsTotal'] }}</td>
                         <td class="assists">{{ player['statistics']['assists'] }}</td>

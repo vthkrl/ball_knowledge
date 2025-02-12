@@ -6,6 +6,7 @@ from nba import comparePlayers, getPlayerImage, leagueStandings
 from playbyplay import getPbP
 from player_performances import getPlayerPerf
 from league_leaders import getLeagueLeaders
+from teams import getTeamStats, getTeamInfo, getTeamRoster
 from datetime import datetime, timezone
 from dateutil import parser
 from timezone import convertToLTZ
@@ -138,10 +139,10 @@ def update_player_box(p_id, game_id):
 def player_suggestions():
     try:
         query = request.args.get('query', '').lower()
-        print("Received query:", query)  # Debugging line
+        print("Received query:", query)
         all_players = [(player['full_name'], player['id']) for player in players.get_players()]
         suggestions = [(player[0], getPlayerImage(int(player[1]))) for player in all_players if query in player[0].lower()]
-        print("Suggestions found:", suggestions[:10])  # Debugging line
+        print("Suggestions found:", suggestions[:10])
         return jsonify(suggestions[:10])
     except Exception as e:
         return jsonify({'error': str(e)})
@@ -150,11 +151,14 @@ def player_suggestions():
 def get_pbp(game_id):
     try:
         pbp_data = getPbP(game_id)
+        boxscore = getBoxscore(game_id)
+        homeTeamId = boxscore['homeTeam']['teamId']
+        awayTeamId = boxscore['awayTeam']['teamId']
 
         if not pbp_data:
             return jsonify({'error': 'No play-by-play data available'}), 404
         
-        return jsonify({'plays': pbp_data}), 200
+        return jsonify({'plays': pbp_data, 'homeTeamId': homeTeamId, 'awayTeamId': awayTeamId}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -168,7 +172,30 @@ def league_leaders(category):
                                category = category)
     except Exception as e:
         return jsonify({'error': e})
+    
+@app.route('/team-stats/<team_id>')
+def team_stats(team_id):
+    try:
+        teamStats = getTeamStats(team_id)
+        teamCommonInfo = getTeamInfo(team_id)
 
+        return render_template('team_stats.html',
+                               teamStats = teamStats,
+                               teamCommonInfo = teamCommonInfo)
+    except Exception as e:
+        return jsonify({'error': e})
+
+@app.route('/roster/<team_id>')
+def get_roster(team_id):
+    try:
+        x = getTeamRoster(team_id)
+        teamRoster = x['teamRoster']
+        headCoach = x['headCoach']
+
+        return jsonify({'teamRoster': teamRoster, 'headCoach': headCoach})
+    except Exception as e:
+        return jsonify({'error': e})
+    
 
 if __name__ == '__main__':
     app.run(debug=True)

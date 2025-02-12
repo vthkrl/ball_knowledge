@@ -1,0 +1,82 @@
+<div class="roster-container">
+    <h2>Team Roster</h2>
+    <p id="head-coach" class="head-coach"></p>
+    <table class="roster-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Player</th>
+                <th>Position</th>
+                <th>Height</th>
+                <th>Weight</th>
+                <th>Age</th>
+            </tr>
+        </thead>
+        <tbody id="roster-body">
+            <!-- Roster data will be inserted here -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const teamId = "{{ teamCommonInfo['TEAM_ID'] }}"; // Ensure team_id is passed when including this file
+        fetch(`/roster/${teamId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error("Error fetching roster:", data.error);
+                    return;
+                }
+                
+                // Insert head coach info
+                console.log("Hello!");
+                const headCoachElem = document.getElementById("head-coach");
+                headCoachElem.textContent = `Head Coach: ${data.headCoach.COACH_NAME}`;
+
+                // Insert roster
+                const rosterBody = document.getElementById("roster-body");
+                data.teamRoster.forEach(player => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td><img src="https://cdn.nba.com/headshots/nba/latest/1040x760/${player.PLAYER_ID}.png" alt="${player.PLAYER}" class="img-fluid rounded-circle mb-3" style="max-height: 50px;"></td>
+                        <td>${player.PLAYER}</td>
+                        <td>${player.POSITION}</td>
+                        <td>${player.HEIGHT}</td>
+                        <td>${player.WEIGHT}</td>
+                        <td>${player.AGE}</td>
+                    `;
+                    rosterBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error("Error fetching roster:", error));
+    });
+</script>
+
+<style>
+    .roster-container {
+        margin-top: 20px;
+        padding: 15px;
+        background: #222;
+        color: #fff;
+        border-radius: 10px;
+    }
+    .roster-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+    .roster-table th, .roster-table td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #444;
+    }
+    .roster-table th {
+        background: #333;
+    }
+    .head-coach {
+        font-size: 1.1em;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+</style>
