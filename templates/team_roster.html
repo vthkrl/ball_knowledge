@@ -1,21 +1,26 @@
-<div class="roster-container">
-    <h2>Team Roster</h2>
-    <p id="head-coach" class="head-coach"></p>
-    <table class="roster-table">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Player</th>
-                <th>Position</th>
-                <th>Height</th>
-                <th>Weight</th>
-                <th>Age</th>
-            </tr>
-        </thead>
-        <tbody id="roster-body">
-            <!-- Roster data will be inserted here -->
-        </tbody>
-    </table>
+<div class="container mt-4">
+    <div class="card p-4 shadow-lg bg-dark text-light rounded">
+        <h2 class="text-center mb-3">Team Roster</h2>
+        <img id="head-coach-image" class="img-fluid rounded-circle" style="max-height: 50px;">
+        <p id="head-coach" class="head-coach text-center"></p>
+        <table class="table table-dark table-striped text-center roster-table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Player</th>
+                    <th>Position</th>
+                    <th>Height</th>
+                    <th>Age</th>
+                    <th>PPG</th>
+                    <th>RPG</th>
+                    <th>APG</th>
+                </tr>
+            </thead>
+            <tbody id="roster-body">
+                <!-- Roster data will be inserted here -->
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script>
@@ -29,8 +34,9 @@
                     return;
                 }
                 
+                const headCoachImg = document.getElementById("head-coach-image");
+                headCoachImg.src = `https://cdn.nba.com/headshots/nba/latest/1040x760/${data.headCoach.COACH_ID}.png`
                 // Insert head coach info
-                console.log("Hello!");
                 const headCoachElem = document.getElementById("head-coach");
                 headCoachElem.textContent = `Head Coach: ${data.headCoach.COACH_NAME}`;
 
@@ -39,12 +45,14 @@
                 data.teamRoster.forEach(player => {
                     const row = document.createElement("tr");
                     row.innerHTML = `
-                        <td><img src="https://cdn.nba.com/headshots/nba/latest/1040x760/${player.PLAYER_ID}.png" alt="${player.PLAYER}" class="img-fluid rounded-circle mb-3" style="max-height: 50px;"></td>
+                        <td><img src="https://cdn.nba.com/headshots/nba/latest/1040x760/${player.PLAYER_ID}.png" alt="${player.PLAYER}" class="img-fluid rounded-circle" style="max-height: 50px;"></td>
                         <td>${player.PLAYER}</td>
                         <td>${player.POSITION}</td>
                         <td>${player.HEIGHT}</td>
-                        <td>${player.WEIGHT}</td>
                         <td>${player.AGE}</td>
+                        <td>${player.PPG}</td>
+                        <td>${player.RPG}</td>
+                        <td>${player.APG}</td>
                     `;
                     rosterBody.appendChild(row);
                 });
@@ -52,31 +60,3 @@
             .catch(error => console.error("Error fetching roster:", error));
     });
 </script>
-
-<style>
-    .roster-container {
-        margin-top: 20px;
-        padding: 15px;
-        background: #222;
-        color: #fff;
-        border-radius: 10px;
-    }
-    .roster-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-    }
-    .roster-table th, .roster-table td {
-        padding: 8px;
-        text-align: left;
-        border-bottom: 1px solid #444;
-    }
-    .roster-table th {
-        background: #333;
-    }
-    .head-coach {
-        font-size: 1.1em;
-        font-weight: bold;
-        margin-bottom: 10px;
-    }
-</style>

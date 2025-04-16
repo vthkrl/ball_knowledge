@@ -9,7 +9,6 @@ import pandas as pd
 #['PLAYER_ID', 'SEASON_ID', 'LEAGUE_ID', 'TEAM_ID', 'TEAM_ABBREVIATION', 'PLAYER_AGE', 'GP', 'GS', 'MIN', 
 # 'FGM', 'FGA', 'FG_PCT', 'FG3M', 'FG3A', 'FG3_PCT', 'FTM', 'FTA', 'FT_PCT', 'OREB', 'DREB', 'REB', 'AST', 'STL', 'BLK', 
 # 'TOV', 'PF', 'PTS']
-
 def leagueStandings():
     ls = leaguestandings.LeagueStandings().get_data_frames()[0]
     west = []
@@ -75,27 +74,23 @@ def getCareerStats(p_id: int):
 
     return career_stats
 
-def getCurrentSeasonStats(p_id: int):
-    season = playercareerstats.PlayerCareerStats(player_id = p_id).get_data_frames()[0].iloc[-1]
-    categories = ['PTS', 'REB', 'AST', 'STL', 'BLK']
-    season_stats = {}
+def getCurrentSeasonStats(p_id):
+    try:
+        player_stats_df = playercareerstats.PlayerCareerStats(player_id=p_id).get_data_frames()[0]
 
-    ppg = round(season['PTS']/season['GP'], 1)
-    rpg = round(season['REB']/season['GP'], 1)
-    apg = round(season['AST']/season['GP'], 1)
-    spg = round(season['STL']/season['GP'], 1)
-    bpg = round(season['BLK']/season['GP'], 1)
+        if player_stats_df.empty:
+            return {"PPG": 0.00, "RPG": 0.00, "APG": 0.00}
 
-    season_stats.update({'PPG': ppg})
-    season_stats.update({'RPG': rpg})
-    season_stats.update({'APG': apg})
-    season_stats.update({'SPG': spg})
-    season_stats.update({'BPG': bpg})
+        season = player_stats_df.iloc[-1]  # Get the latest season stats
 
-    for cat in categories:
-        season_stats.update({cat: int(season[cat])})
-
-    return season_stats
+        return {
+            "PPG": round(season.get("PTS", 0) / max(season.get("GP", 1), 1), 2),
+            "RPG": round(season.get("REB", 0) / max(season.get("GP", 1), 1), 2),
+            "APG": round(season.get("AST", 0) / max(season.get("GP", 1), 1), 2),
+        }
+    except Exception as e:
+        print(f"Error fetching stats for player {p_id}: {e}")
+        return {"PPG": 0.00, "RPG": 0.00, "APG": 0.00}
 
 def getAwards(p_id: int):
     awards = playerawards.PlayerAwards(player_id= p_id).get_data_frames()[0]
@@ -152,4 +147,12 @@ def getTeamLogo(team_id: int):
     image = f'https://cdn.nba.com/logos/nba/{team_id}/primary/L/logo.svg'
 
     return image
+
+def gmsc(PTS: int, FG: int, FGA: int, FTA: int, FT: int, ORB: int, DRB: int, STL: int, AST: int, BLK: int, PF: int, TOV: int) -> int:
+    return int(round(PTS + 0.4 * FG - 0.7 * FGA - 0.4 * (FTA - FT) + 0.7 * ORB + 0.3 * DRB + STL + 0.7 * AST + 0.7 * BLK - 0.4 * PF - TOV))
+#great idea i just had: write a function that looks at a bunch of games
+#and uses some sort of metric to find some of the
+#best performances from that set of games
+#this could be good for finding the highlight performances from,
+#for example, a playoff series
 

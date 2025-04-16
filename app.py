@@ -55,7 +55,6 @@ def standings():
 
 @app.route('/live-games')
 def live_games():
-    # Sample API URL - Replace with actual NBA live game endpoint
     try:
         games = getTodayGames()    
 
@@ -139,10 +138,8 @@ def update_player_box(p_id, game_id):
 def player_suggestions():
     try:
         query = request.args.get('query', '').lower()
-        print("Received query:", query)
         all_players = [(player['full_name'], player['id']) for player in players.get_players()]
         suggestions = [(player[0], getPlayerImage(int(player[1]))) for player in all_players if query in player[0].lower()]
-        print("Suggestions found:", suggestions[:10])
         return jsonify(suggestions[:10])
     except Exception as e:
         return jsonify({'error': str(e)})
@@ -198,4 +195,4 @@ def get_roster(team_id):
     
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='127.0.0.1', port=5000, debug=True)

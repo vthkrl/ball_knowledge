@@ -3,6 +3,7 @@ from nba_api.live.nba.endpoints import boxscore
 from nba_api.stats.static import players
 from datetime import time, timezone
 from dateutil import parser
+from nba import gmsc
 import pandas as pd
 import json
 
@@ -62,5 +63,13 @@ def getBoxscore(game_id):
     except Exception as e:
         print(f"Error fetching boxscore for {game_id}: {e}")
         return {'error': 'Unexpected error', 'gameStarted': False}
+    
+def bestPerformances(gameIds: list):
+    pass
 
 
+#great idea i just had: write a function that looks at a bunch of games
+#and uses some sort of metric to find some of the
+#best performances from that set of games
+#this could be good for finding the highlight performances from,
+#for example, a playoff series
