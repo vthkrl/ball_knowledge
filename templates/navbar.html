@@ -1,30 +1,473 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-expand-lg" style="
+    backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    transition: all 0.3s ease;
+">
     <div class="container">
-        <a class="navbar-brand" href="{{ url_for('compare') }}">Ball Knowledge</a>
+        <a class="navbar-brand" href="{{ url_for('compare') }}" style="
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: transform 0.3s ease;
+        " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+            <i class="fas fa-basketball-ball" style="color: #ff6b6b;"></i>
+            Ball Knowledge
+        </a>
+        
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation" style="
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 0.5rem;
+        ">
+            <span style="
+                display: block;
+                width: 25px;
+                height: 3px;
+                background: white;
+                margin: 3px 0;
+                border-radius: 2px;
+                transition: 0.3s;
+            "></span>
+            <span style="
+                display: block;
+                width: 25px;
+                height: 3px;
+                background: white;
+                margin: 3px 0;
+                border-radius: 2px;
+                transition: 0.3s;
+            "></span>
+            <span style="
+                display: block;
+                width: 25px;
+                height: 3px;
+                background: white;
+                margin: 3px 0;
+                border-radius: 2px;
+                transition: 0.3s;
+            "></span>
         </button>
+        
         <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-            <ul class="navbar-nav">
+            <!-- Player Search Section -->
+            <div class="position-relative me-4" id="navbar-search-container" style="min-width: 250px;">
+                <div class="input-group">
+                    <input type="text" 
+                           id="navbar-player-search" 
+                           class="form-control" 
+                           placeholder="Search NBA players..." 
+                           autocomplete="off"
+                           style="
+                               background: rgba(255, 255, 255, 0.1);
+                               border: 1px solid rgba(255, 255, 255, 0.3);
+                               border-radius: 20px 0 0 20px;
+                               color: white;
+                               padding: 0.5rem 1rem;
+                               font-size: 0.9rem;
+                               backdrop-filter: blur(10px);
+                               transition: all 0.3s ease;
+                           "
+                           onfocus="this.style.background='rgba(255, 255, 255, 0.15)'; this.style.borderColor='#4ecdc4';"
+                           onblur="this.style.background='rgba(255, 255, 255, 0.1)'; this.style.borderColor='rgba(255, 255, 255, 0.3)';">
+                    <button class="btn" type="button" style="
+                        background: rgba(255, 255, 255, 0.1);
+                        border: 1px solid rgba(255, 255, 255, 0.3);
+                        border-left: none;
+                        border-radius: 0 20px 20px 0;
+                        color: white;
+                        padding: 0.5rem 1rem;
+                    ">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <ul id="navbar-player-suggestions" class="suggestions-list list-group position-absolute w-100 mt-1" style="
+                    z-index: 1050;
+                    background: rgba(26, 26, 46, 0.95);
+                    backdrop-filter: blur(20px);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    border-radius: 12px;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                    max-height: 300px;
+                    overflow-y: auto;
+                    display: none;
+                "></ul>
+            </div>
+            
+            <ul class="navbar-nav" style="align-items: center; gap: 1rem;">
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('standings') }}">Standings</a>
+                    <a class="nav-link" href="{{ url_for('standings') }}" style="
+                        color: white;
+                        font-weight: 500;
+                        padding: 0.75rem 1.25rem;
+                        border-radius: 15px;
+                        transition: all 0.3s ease;
+                        text-decoration: none;
+                        position: relative;
+                        overflow: hidden;
+                    " onmouseover="
+                        this.style.background='rgba(255, 255, 255, 0.15)';
+                        this.style.transform='translateY(-2px)';
+                        this.style.boxShadow='0 5px 15px rgba(0, 0, 0, 0.2)';
+                    " onmouseout="
+                        this.style.background='transparent';
+                        this.style.transform='translateY(0)';
+                        this.style.boxShadow='none';
+                    ">
+                        <i class="fas fa-trophy me-2"></i>
+                        Standings
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('live_games') }}">Live Games</a>
+                    <a class="nav-link" href="{{ url_for('live_games') }}" style="
+                        color: white;
+                        font-weight: 500;
+                        padding: 0.75rem 1.25rem;
+                        border-radius: 15px;
+                        transition: all 0.3s ease;
+                        text-decoration: none;
+                        position: relative;
+                        overflow: hidden;
+                    " onmouseover="
+                        this.style.background='rgba(255, 255, 255, 0.15)';
+                        this.style.transform='translateY(-2px)';
+                        this.style.boxShadow='0 5px 15px rgba(0, 0, 0, 0.2)';
+                    " onmouseout="
+                        this.style.background='transparent';
+                        this.style.transform='translateY(0)';
+                        this.style.boxShadow='none';
+                    ">
+                        <i class="fas fa-play-circle me-2"></i>
+                        Live Games
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('compare') }}">Compare Players</a>
+                    <a class="nav-link" href="{{ url_for('compare') }}" style="
+                        color: white;
+                        font-weight: 500;
+                        padding: 0.75rem 1.25rem;
+                        border-radius: 15px;
+                        transition: all 0.3s ease;
+                        text-decoration: none;
+                        position: relative;
+                        overflow: hidden;
+                    " onmouseover="
+                        this.style.background='rgba(255, 255, 255, 0.15)';
+                        this.style.transform='translateY(-2px)';
+                        this.style.boxShadow='0 5px 15px rgba(0, 0, 0, 0.2)';
+                    " onmouseout="
+                        this.style.background='transparent';
+                        this.style.transform='translateY(0)';
+                        this.style.boxShadow='none';
+                    ">
+                        <i class="fas fa-balance-scale me-2"></i>
+                        Compare Players
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('league_leaders', category='PPG') }}">League Leaders</a>
-                </li>
-                <li class="nav-item">
-                    <button id="dark-mode-toggle" class="btn btn-outline-light ms-3">
-                        🌙 Dark Mode
-                    </button>                    
+                    <a class="nav-link" href="{{ url_for('league_leaders', category='PPG') }}" style="
+                        color: white;
+                        font-weight: 500;
+                        padding: 0.75rem 1.25rem;
+                        border-radius: 15px;
+                        transition: all 0.3s ease;
+                        text-decoration: none;
+                        position: relative;
+                        overflow: hidden;
+                    " onmouseover="
+                        this.style.background='rgba(255, 255, 255, 0.15)';
+                        this.style.transform='translateY(-2px)';
+                        this.style.boxShadow='0 5px 15px rgba(0, 0, 0, 0.2)';
+                    " onmouseout="
+                        this.style.background='transparent';
+                        this.style.transform='translateY(0)';
+                        this.style.boxShadow='none';
+                    ">
+                        <i class="fas fa-crown me-2"></i>
+                        League Leaders
+                    </a>
                 </li>
             </ul>
         </div>
     </div>
 </nav>
+
+<style>
+/* Navbar search input placeholder styling */
+#navbar-player-search::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Suggestion list items styling */
+.suggestions-list .list-group-item {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+}
+
+.suggestions-list .list-group-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.suggestions-list .list-group-item:last-child {
+    border-bottom: none;
+}
+
+.player-image {
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 991px) {
+    .navbar-nav {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .navbar-nav .nav-item {
+        margin-bottom: 0.5rem;
+    }
+    
+    .navbar-nav .nav-link {
+        text-align: center;
+        display: block;
+        width: 100%;
+    }
+    
+    #navbar-search-container {
+        order: -1;
+        margin-bottom: 1rem;
+        margin-right: 0 !important;
+        min-width: 100%;
+    }
+    
+    #navbar-player-suggestions {
+        width: 100% !important;
+    }
+}
+
+@media (max-width: 768px) {
+    #navbar-search-container {
+        min-width: 100%;
+    }
+    
+    #navbar-player-search {
+        font-size: 0.85rem !important;
+        padding: 0.4rem 0.8rem !important;
+    }
+}
+
+/* Active state styling */
+.navbar-nav .nav-link.active,
+.navbar-nav .nav-link:focus {
+    background: linear-gradient(135deg, rgba(78, 205, 196, 0.2), rgba(69, 183, 209, 0.2)) !important;
+    border: 1px solid rgba(78, 205, 196, 0.3);
+    transform: translateY(-2px) !important;
+    box-shadow: 0 5px 15px rgba(78, 205, 196, 0.3) !important;
+}
+
+/* Custom hamburger animation */
+.navbar-toggler:focus {
+    box-shadow: 0 0 0 0.2rem rgba(78, 205, 196, 0.25);
+}
+
+.navbar-toggler[aria-expanded="true"] span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.navbar-toggler[aria-expanded="true"] span:nth-child(2) {
+    opacity: 0;
+}
+
+.navbar-toggler[aria-expanded="true"] span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -6px);
+}
+
+/* Search results animation */
+.suggestions-list {
+    animation: fadeInDown 0.3s ease-out;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+
+<script>
+// Navbar player search functionality
+function fetchNavbarPlayerSuggestions(query) {
+    const suggestionList = document.getElementById('navbar-player-suggestions');
+    
+    if (query.length < 2) {
+        suggestionList.innerHTML = '';
+        suggestionList.style.display = 'none';
+        return;
+    }
+
+    // Show loading state
+    suggestionList.innerHTML = '<li class="list-group-item text-center"><i class="fas fa-spinner fa-spin me-2"></i>Searching...</li>';
+    suggestionList.style.display = 'block';
+
+    fetch(`/player_suggestions?query=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            suggestionList.innerHTML = '';  // Clear previous suggestions
+
+            if (data.length === 0) {
+                suggestionList.innerHTML = '<li class="list-group-item text-center opacity-75">No players found</li>';
+                return;
+            }
+
+            data.forEach(player => {
+                let listItem = document.createElement('li');
+                listItem.classList.add('list-group-item');
+
+                // Add player image
+                let playerImage = document.createElement('img');
+                playerImage.src = player[1];  // Image URL
+                playerImage.alt = player[0];  // Player name
+                playerImage.classList.add('player-image', 'me-3');
+                playerImage.style.width = '35px';
+                playerImage.style.height = '35px';
+                playerImage.onerror = function() {
+                    this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUiIGhlaWdodD0iMzUiIHZpZXdCb3g9IjAgMCAzNSAzNSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTcuNSIgY3k9IjE3LjUiIHI9IjE3LjUiIGZpbGw9IiM0ZWNkYzQiLz4KPHN2ZyB4PSI3IiB5PSI3IiB3aWR0aD0iMjEiIGhlaWdodD0iMjEiIGZpbGw9IndoaXRlIiB2aWV3Qm94PSIwIDAgMjQgMjQiPgo8cGF0aCBkPSJNMTIgMTJjMi4yMSAwIDQtMS43OSA0LTRzLTEuNzktNC00LTQtNCAxLjc5LTQgNCAxLjc5IDQgNCA0em0wIDJjLTIuNjcgMC04IDEuMzQtOCA0djJoMTZ2LTJjMC0yLjY2LTUuMzMtNC04LTR6Ii8+Cjwvc3ZnPgo8L3N2Zz4K';
+                };
+
+                // Add player name and team info
+                let playerInfo = document.createElement('div');
+                playerInfo.style.flex = '1';
+                
+                let playerName = document.createElement('div');
+                playerName.textContent = player[0];
+                playerName.style.fontSize = '0.9rem';
+                playerName.style.fontWeight = '500';
+                playerName.style.marginBottom = '0.1rem';
+
+                playerInfo.appendChild(playerName);
+
+                // Add action icon
+                let actionIcon = document.createElement('i');
+                actionIcon.classList.add('fas', 'fa-external-link-alt', 'opacity-50');
+                actionIcon.style.fontSize = '0.8rem';
+
+                listItem.appendChild(playerImage);
+                listItem.appendChild(playerInfo);
+                listItem.appendChild(actionIcon);
+
+                listItem.onclick = function() {
+                    // Navigate to player stats page using player ID
+                    // Assuming the API returns [player_name, image_url, player_id] or we need to extract ID
+                    const playerId = player[2] || player[0]; // Use player ID if available, fallback to name
+                    window.location.href = `/player_stats/${encodeURIComponent(playerId)}`;
+                    
+                    // Clear search
+                    document.getElementById('navbar-player-search').value = '';
+                    suggestionList.innerHTML = '';
+                    suggestionList.style.display = 'none';
+                };
+
+                suggestionList.appendChild(listItem);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching player suggestions:', error);
+            suggestionList.innerHTML = '<li class="list-group-item text-center text-danger">Error loading suggestions</li>';
+        });
+}
+
+// Event listeners for navbar search
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('navbar-player-search');
+    const suggestionList = document.getElementById('navbar-player-suggestions');
+    
+    if (searchInput) {
+        // Input event for real-time search
+        searchInput.addEventListener('input', function() {
+            fetchNavbarPlayerSuggestions(this.value);
+        });
+        
+        // Focus event to show suggestions if there's text
+        searchInput.addEventListener('focus', function() {
+            if (this.value.length >= 2) {
+                fetchNavbarPlayerSuggestions(this.value);
+            }
+        });
+        
+        // Enter key to search
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const firstSuggestion = suggestionList.querySelector('.list-group-item');
+                if (firstSuggestion && firstSuggestion.onclick) {
+                    firstSuggestion.click();
+                }
+            }
+            
+            // Arrow key navigation
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                const items = suggestionList.querySelectorAll('.list-group-item');
+                const currentActive = suggestionList.querySelector('.list-group-item.active');
+                let index = 0;
+                
+                if (currentActive) {
+                    index = Array.from(items).indexOf(currentActive);
+                    currentActive.classList.remove('active');
+                }
+                
+                if (e.key === 'ArrowDown') {
+                    index = (index + 1) % items.length;
+                } else {
+                    index = (index - 1 + items.length) % items.length;
+                }
+                
+                if (items[index]) {
+                    items[index].classList.add('active');
+                    items[index].scrollIntoView({ block: 'nearest' });
+                }
+            }
+        });
+    }
+    
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('#navbar-search-container')) {
+            if (suggestionList) {
+                suggestionList.innerHTML = '';
+                suggestionList.style.display = 'none';
+            }
+        }
+    });
+});
+</script>

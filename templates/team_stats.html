@@ -6,58 +6,582 @@
     <title>{{ teamCommonInfo['TEAM_NAME'] }} Profile</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="{{ url_for('static', filename='js/dark_mode.js') }}" defer></script>
+    <style id="team-colors-style">
+        /* Dynamic team colors will be injected here */
+    </style>
+    <style>
+        /* Base modern styles */
+        * {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+        
+        .hero-section {
+            position: relative;
+            min-height: 60vh;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+        
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+        }
+        
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+        }
+        
+        .team-logo {
+            filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.3));
+            transform: scale(1);
+            transition: transform 0.5s ease;
+        }
+        
+        .team-logo:hover {
+            transform: scale(1.05);
+        }
+        
+        .glass-card {
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            transform: translateY(0);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .stat-card:hover::before {
+            left: 100%;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .floating-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .floating-circle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .floating-circle:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .floating-circle:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            top: 60%;
+            right: 15%;
+            animation-delay: 2s;
+        }
+        
+        .floating-circle:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            bottom: 30%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        .record-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+        
+        .conference-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .conference-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+        }
+        
+        .modern-table {
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .modern-table th {
+            padding: 1.5rem 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+        }
+        
+        .modern-table td {
+            padding: 1.25rem 1rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        
+        .rank-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-section {
+                min-height: 50vh;
+                text-align: center;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+            
+            .stat-value {
+                font-size: 1.5rem;
+            }
+            
+            .conference-info {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
 </head>
 <body>
     {% include 'navbar.html' %}
     
-    <div class="container mt-4">
-        <div class="card p-4 shadow-lg bg-dark text-light rounded">
+    <!-- Floating Background Elements -->
+    <div class="floating-elements">
+        <div class="floating-circle"></div>
+        <div class="floating-circle"></div>
+        <div class="floating-circle"></div>
+    </div>
+    
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-bg"></div>
+        <div class="hero-overlay"></div>
+        <div class="container">
             <div class="row align-items-center">
-                <div class="col-md-4 text-center">
-                    <img src="https://cdn.nba.com/logos/nba/{{ teamCommonInfo['TEAM_ID'] }}/primary/L/logo.svg" class="img-fluid" style="max-height: 200px;">
+                <div class="col-lg-4 text-center mb-4 mb-lg-0">
+                    <img src="https://cdn.nba.com/logos/nba/{{ teamCommonInfo['TEAM_ID'] }}/primary/L/logo.svg" 
+                         class="team-logo img-fluid pulse" 
+                         style="max-height: 250px;" 
+                         alt="{{ teamCommonInfo['TEAM_NAME'] }} Logo">
                 </div>
-                <div class="col-md-8">
-                    <h1 class="display-5">{{ teamCommonInfo['TEAM_CITY'] }} {{ teamCommonInfo['TEAM_NAME'] }} ({{ teamCommonInfo['TEAM_ABBREVIATION'] }})</h1>
-                    <h4>{{ teamCommonInfo['TEAM_CONFERENCE'] }} Conference ({{ teamCommonInfo['TEAM_DIVISION'] }} Division)</h4>
-                    <h5>Record: {{ teamCommonInfo['W'] }} - {{ teamCommonInfo['L'] }} (#{{ teamCommonInfo['CONF_RANK'] }} in {{ teamCommonInfo['TEAM_CONFERENCE'] }})</h5>
+                <div class="col-lg-8">
+                    <h1 class="display-3 fw-bold mb-3">
+                        {{ teamCommonInfo['TEAM_CITY'] }} 
+                        <span class="text-gradient">{{ teamCommonInfo['TEAM_NAME'] }}</span>
+                    </h1>
+                    <h2 class="h4 mb-3 opacity-90">{{ teamCommonInfo['TEAM_ABBREVIATION'] }}</h2>
+                    
+                    <div class="conference-info">
+                        <div class="conference-badge glass-card">
+                            <i class="fas fa-trophy me-2"></i>
+                            {{ teamCommonInfo['TEAM_CONFERENCE'] }} Conference
+                        </div>
+                        <div class="conference-badge glass-card">
+                            <i class="fas fa-users me-2"></i>
+                            {{ teamCommonInfo['TEAM_DIVISION'] }} Division
+                        </div>
+                    </div>
+                    
+                    <a href="/standings"><div class="record-badge glass-card">
+                        <i class="fas fa-chart-line me-2"></i>
+                        <strong>{{ teamCommonInfo['W'] }}-{{ teamCommonInfo['L'] }}</strong>
+                        <span class="rank-badge">#{{ teamCommonInfo['CONF_RANK'] }} in {{ teamCommonInfo['TEAM_CONFERENCE'] }}</span>
+                    </div></a>
                 </div>
             </div>
         </div>
-        
-        <div class="card mt-4 p-4 shadow-lg bg-dark text-light rounded">
-            <h3 class="text-center mb-3">Team Stats (League Rank)</h3>
-            <table class="table table-dark table-striped text-center">
-                <thead>
-                    <tr>
-                        <th>PPG</th>
-                        <th>FG%</th>
-                        <th>RPG</th>
-                        <th>OREBPG</th>
-                        <th>DREBPG</th>
-                        <th>APG</th>
-                        <th>SPG</th>
-                        <th>BPG</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>{{ (teamStats['PTS'] / teamStats['GP']) | round(1) }} ({{ teamStats['PTS_RANK'] }})</td>
-                        <td>{{ (teamStats['FG_PCT'] * 100) | round(1) }}% ({{ teamStats['FG_PCT_RANK'] }})</td>
-                        <td>{{ (teamStats['REB'] / teamStats['GP']) | round(1) }} ({{ teamStats['REB_RANK'] }})</td>
-                        <td>{{ (teamStats['OREB'] / teamStats['GP']) | round(1) }} ({{ teamStats['OREB_RANK'] }})</td>
-                        <td>{{ (teamStats['DREB'] / teamStats['GP']) | round(1) }} ({{ teamStats['DREB_RANK'] }})</td>
-                        <td>{{ (teamStats['AST'] / teamStats['GP']) | round(1) }} ({{ teamStats['AST_RANK'] }})</td>
-                        <td>{{ (teamStats['STL'] / teamStats['GP']) | round(1) }} ({{ teamStats['STL_RANK'] }})</td>
-                        <td>{{ (teamStats['BLK'] / teamStats['GP']) | round(1) }} ({{ teamStats['BLK_RANK'] }})</td>
-                    </tr>
-                </tbody>
-            </table>
+    </section>
+    
+    <!-- Stats Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="glass-card p-5">
+                <h3 class="text-center mb-2 display-6 fw-bold">
+                    <i class="fas fa-chart-bar me-3"></i>
+                    Team Performance
+                </h3>
+                <p class="text-center opacity-75 mb-4">Season statistics with league rankings</p>
+                
+                <div class="stats-grid">
+                    <div class="stat-card glass-card">
+                        <div class="stat-value">{{ (teamStats['PTS'] / teamStats['GP']) | round(1) }}</div>
+                        <div class="stat-label">
+                            <i class="fas fa-basketball-ball me-1"></i>
+                            Points Per Game
+                        </div>
+                        <div class="rank-badge mt-2">#{{ teamStats['PTS_RANK'] }}</div>
+                    </div>
+                    
+                    <div class="stat-card glass-card">
+                        <div class="stat-value">{{ (teamStats['FG_PCT'] * 100) | round(1) }}%</div>
+                        <div class="stat-label">
+                            <i class="fas fa-bullseye me-1"></i>
+                            Field Goal %
+                        </div>
+                        <div class="rank-badge mt-2">#{{ teamStats['FG_PCT_RANK'] }}</div>
+                    </div>
+                    
+                    <div class="stat-card glass-card">
+                        <div class="stat-value">{{ (teamStats['REB'] / teamStats['GP']) | round(1) }}</div>
+                        <div class="stat-label">
+                            <i class="fas fa-hand-paper me-1"></i>
+                            Rebounds Per Game
+                        </div>
+                        <div class="rank-badge mt-2">#{{ teamStats['REB_RANK'] }}</div>
+                    </div>
+                    
+                    <div class="stat-card glass-card">
+                        <div class="stat-value">{{ (teamStats['AST'] / teamStats['GP']) | round(1) }}</div>
+                        <div class="stat-label">
+                            <i class="fas fa-hands-helping me-1"></i>
+                            Assists Per Game
+                        </div>
+                        <div class="rank-badge mt-2">#{{ teamStats['AST_RANK'] }}</div>
+                    </div>
+                    
+                    <div class="stat-card glass-card">
+                        <div class="stat-value">{{ (teamStats['STL'] / teamStats['GP']) | round(1) }}</div>
+                        <div class="stat-label">
+                            <i class="fas fa-hand-scissors me-1"></i>
+                            Steals Per Game
+                        </div>
+                        <div class="rank-badge mt-2">#{{ teamStats['STL_RANK'] }}</div>
+                    </div>
+                    
+                    <div class="stat-card glass-card">
+                        <div class="stat-value">{{ (teamStats['BLK'] / teamStats['GP']) | round(1) }}</div>
+                        <div class="stat-label">
+                            <i class="fas fa-shield-alt me-1"></i>
+                            Blocks Per Game
+                        </div>
+                        <div class="rank-badge mt-2">#{{ teamStats['BLK_RANK'] }}</div>
+                    </div>
+                    
+                    <div class="stat-card glass-card">
+                        <div class="stat-value">{{ (teamStats['OREB'] / teamStats['GP']) | round(1) }}</div>
+                        <div class="stat-label">
+                            <i class="fas fa-arrow-up me-1"></i>
+                            Off. Rebounds
+                        </div>
+                        <div class="rank-badge mt-2">#{{ teamStats['OREB_RANK'] }}</div>
+                    </div>
+                    
+                    <div class="stat-card glass-card">
+                        <div class="stat-value">{{ (teamStats['DREB'] / teamStats['GP']) | round(1) }}</div>
+                        <div class="stat-label">
+                            <i class="fas fa-arrow-down me-1"></i>
+                            Def. Rebounds
+                        </div>
+                        <div class="rank-badge mt-2">#{{ teamStats['DREB_RANK'] }}</div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
+    </section>
 
     {% include 'team_roster.html' %}
+
+    {% include 'team_game_log.html' %}
     
     {% include 'legal_footer.html' %}
+
+    <script>
+        // Function to get contrast color (black or white) based on background
+        function getContrastColor(hexColor) {
+            hexColor = hexColor.replace('#', '');
+            const r = parseInt(hexColor.substr(0, 2), 16);
+            const g = parseInt(hexColor.substr(2, 2), 16);
+            const b = parseInt(hexColor.substr(4, 2), 16);
+            const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+            return brightness > 128 ? '#000000' : '#ffffff';
+        }
+        
+        // Function to lighten/darken a color
+        function adjustColor(hexColor, percent) {
+            hexColor = hexColor.replace('#', '');
+            const num = parseInt(hexColor, 16);
+            const amt = Math.round(2.55 * percent);
+            const R = (num >> 16) + amt;
+            const G = (num >> 8 & 0x00FF) + amt;
+            const B = (num & 0x0000FF) + amt;
+            return "#" + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+                (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
+                (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
+        }
+
+        // Function to apply team colors
+        function applyTeamColors(colors) {
+            const primaryColor = colors['1'] || '#1a1a2e';
+            const secondaryColor = colors['2'] || '#16213e';
+            const tertiaryColor = colors['3'] || secondaryColor;
+            
+            const primaryTextColor = getContrastColor(primaryColor);
+            const secondaryTextColor = getContrastColor(secondaryColor);
+            const tertiaryTextColor = getContrastColor(tertiaryColor);
+            
+            const primaryLight = adjustColor(primaryColor, 20);
+            const primaryDark = adjustColor(primaryColor, -20);
+            const secondaryLight = adjustColor(secondaryColor, 15);
+            
+            const styles = `
+                /* Global Background */
+                body {
+                    background: linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 50%, ${tertiaryColor} 100%);
+                    min-height: 100vh;
+                    color: ${primaryTextColor};
+                }
+                
+                /* Hero Section */
+                .hero-bg {
+                    background: radial-gradient(ellipse at center, ${primaryLight}80 0%, ${primaryColor}40 50%, ${primaryDark}60 100%);
+                }
+                
+                /* Glass Cards */
+                .glass-card {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    backdrop-filter: blur(20px);
+                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                    color: ${primaryTextColor} !important;
+                }
+                
+                /* Floating Elements */
+                .floating-circle {
+                    background: ${secondaryColor};
+                }
+                
+                .floating-circle:nth-child(1) { background: ${primaryColor}; }
+                .floating-circle:nth-child(2) { background: ${secondaryColor}; }
+                .floating-circle:nth-child(3) { background: ${tertiaryColor}; }
+                
+                /* Text Gradient */
+                .text-gradient {
+                    background: linear-gradient(45deg, ${primaryColor}, ${secondaryColor});
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                }
+                
+                /* Badges */
+                .conference-badge {
+                    background: rgba(255, 255, 255, 0.15) !important;
+                    color: ${primaryTextColor} !important;
+                    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+                }
+                
+                .record-badge {
+                    background: linear-gradient(135deg, ${primaryColor}E6, ${secondaryColor}E6) !important;
+                    color: ${primaryTextColor} !important;
+                    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+                }
+                
+                .rank-badge {
+                    background: ${tertiaryColor} !important;
+                    color: ${tertiaryTextColor} !important;
+                }
+                
+                /* Stat Cards */
+                .stat-card {
+                    background: linear-gradient(135deg, ${primaryColor}66, ${secondaryColor}66) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                    color: ${primaryTextColor} !important;
+                }
+                
+                .stat-card:hover {
+                    background: linear-gradient(135deg, ${primaryLight}80, ${secondaryLight}80) !important;
+                    box-shadow: 0 15px 40px ${primaryColor}40 !important;
+                }
+                
+                .stat-value {
+                    color: ${primaryTextColor} !important;
+                    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+                }
+                
+                /* Pulse Animation */
+                .pulse {
+                    animation: pulse-team 2s infinite;
+                }
+                
+                @keyframes pulse-team {
+                    0% { 
+                        box-shadow: 0 0 0 0 ${primaryColor}70; 
+                        transform: scale(1);
+                    }
+                    70% { 
+                        box-shadow: 0 0 0 20px ${primaryColor}00; 
+                        transform: scale(1.02);
+                    }
+                    100% { 
+                        box-shadow: 0 0 0 0 ${primaryColor}00; 
+                        transform: scale(1);
+                    }
+                }
+                
+                /* Navbar Integration */
+                .navbar {
+                    background: linear-gradient(90deg, ${primaryColor}F0, ${secondaryColor}F0) !important;
+                    backdrop-filter: blur(10px);
+                }
+                
+                /* Scrollbar */
+                ::-webkit-scrollbar {
+                    width: 8px;
+                }
+                
+                ::-webkit-scrollbar-track {
+                    background: ${primaryDark};
+                }
+                
+                ::-webkit-scrollbar-thumb {
+                    background: linear-gradient(45deg, ${primaryColor}, ${secondaryColor});
+                    border-radius: 4px;
+                }
+                
+                ::-webkit-scrollbar-thumb:hover {
+                    background: linear-gradient(45deg, ${primaryLight}, ${secondaryLight});
+                }
+                
+                /* Selection */
+                ::selection {
+                    background: ${primaryColor}80;
+                    color: ${primaryTextColor};
+                }
+                
+                /* Links */
+                a {
+                    color: ${primaryTextColor} !important;
+                }
+                
+                a:hover {
+                    color: ${secondaryTextColor} !important;
+                    text-shadow: 0 0 10px ${primaryColor}80;
+                }
+            `;
+            
+            document.getElementById('team-colors-style').textContent = styles;
+        }
+
+        // Fetch team colors and apply them
+        document.addEventListener('DOMContentLoaded', function() {
+            const teamId = "{{ teamCommonInfo['TEAM_ID'] }}";
+            
+            fetch(`/team_colors/${teamId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.colors) {
+                        applyTeamColors(data.colors);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching team colors:', error);
+                });
+        });
+    </script>
 </body>
 </html>

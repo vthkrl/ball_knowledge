@@ -1,9 +1,9 @@
-from nba_api.stats.endpoints import commonteamroster, teamplayerdashboard
+import pandas as pd
+from player_performances import getPlayerGameLog
+from teams import getTeamGameLog
+import json
+from nba_api.stats.endpoints import playercareerstats
 
-okc = 1610612760
- 
-r = commonteamroster.CommonTeamRoster(okc).get_data_frames()[0].columns
-d = teamplayerdashboard.TeamPlayerDashboard(okc).get_data_frames()[1]
+st = playercareerstats.PlayerCareerStats(2544).get_data_frames()[0]
 
-print(r)
-print(d)
+print(st)

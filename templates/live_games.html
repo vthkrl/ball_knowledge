@@ -6,7 +6,360 @@
     <title>Live NBA Games</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="{{ url_for('static', filename='js/dark_mode.js') }}" defer></script>
+    <style>
+        /* Base modern styles */
+        * {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: white;
+        }
+        
+        .glass-card {
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+        }
+        
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .glass-card:hover::before {
+            left: 100%;
+        }
+        
+        .floating-elements {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .floating-circle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .floating-circle:nth-child(1) {
+            width: 100px;
+            height: 100px;
+            top: 15%;
+            left: 8%;
+            background: #ff6b6b;
+            animation-delay: 0s;
+        }
+        
+        .floating-circle:nth-child(2) {
+            width: 140px;
+            height: 140px;
+            top: 50%;
+            right: 10%;
+            background: #4ecdc4;
+            animation-delay: 2s;
+        }
+        
+        .floating-circle:nth-child(3) {
+            width: 80px;
+            height: 80px;
+            bottom: 25%;
+            left: 15%;
+            background: #45b7d1;
+            animation-delay: 4s;
+        }
+        
+        .floating-circle:nth-child(4) {
+            width: 60px;
+            height: 60px;
+            top: 70%;
+            right: 25%;
+            background: #feca57;
+            animation-delay: 1s;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        .games-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+        }
+        
+        .games-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+        
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .game-card {
+            margin-bottom: 2rem;
+            padding: 0;
+        }
+        
+        .game-content {
+            padding: 2rem;
+        }
+        
+        .teams-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .team-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .away-team {
+            justify-content: flex-end;
+        }
+        
+        .home-team {
+            justify-content: flex-start;
+        }
+        
+        .team-logo {
+            width: 60px;
+            height: 60px;
+            filter: drop-shadow(0 4px 15px rgba(0, 0, 0, 0.3));
+            transition: transform 0.3s ease;
+        }
+        
+        .glass-card:hover .team-logo {
+            transform: scale(1.1);
+        }
+        
+        .team-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        
+        .vs-separator {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4ecdc4;
+            margin: 0 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(78, 205, 196, 0.2), rgba(69, 183, 209, 0.2));
+            border: 2px solid rgba(78, 205, 196, 0.3);
+        }
+        
+        .game-info {
+            text-align: center;
+        }
+        
+        .score-display {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #ffffff;
+        }
+        
+        .score-away {
+            color: #ff6b6b;
+        }
+        
+        .score-home {
+            color: #4ecdc4;
+        }
+        
+        .score-separator {
+            color: #ffffff;
+            margin: 0 1rem;
+        }
+        
+        .game-status {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.08));
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .status-item i {
+            color: #4ecdc4;
+        }
+        
+        .status-label {
+            font-weight: 600;
+            color: #ffffff;
+            opacity: 0.8;
+        }
+        
+        .status-value {
+            font-weight: 700;
+            color: #ffffff;
+        }
+        
+        .no-games-message {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+        
+        .no-games-icon {
+            font-size: 4rem;
+            color: #4ecdc4;
+            margin-bottom: 1rem;
+        }
+        
+        .no-games-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #ffffff;
+            opacity: 0.8;
+        }
+        
+        /* Link styling */
+        a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        a:hover {
+            color: inherit;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .games-title {
+                font-size: 2.5rem;
+            }
+            
+            .teams-container {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .team-section {
+                justify-content: center !important;
+            }
+            
+            .vs-separator {
+                order: 2;
+                margin: 1rem 0;
+            }
+            
+            .away-team {
+                order: 1;
+            }
+            
+            .home-team {
+                order: 3;
+            }
+            
+            .game-status {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .team-logo {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .team-name {
+                font-size: 1.1rem;
+            }
+            
+            .score-display {
+                font-size: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .game-content {
+                padding: 1.5rem;
+            }
+            
+            .games-header {
+                padding: 1rem 0;
+            }
+            
+            .status-item {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
     <script>
         var refreshRate = 5000;  // Refresh interval in milliseconds
     
@@ -17,9 +370,24 @@
                     data.forEach(game => {
                         const card = document.getElementById(`${game.gameId}-${game.home_team}-v-${game.away_team}`);
                         if (card) {
-                            card.querySelector('.card-text strong:nth-child(1)').nextSibling.textContent = ` ${game.away_score} - ${game.home_score}`;
-                            card.querySelector('.card-text strong:nth-child(3)').nextSibling.textContent = ` ${game.period} | `;
-                            card.querySelector('.card-text strong:nth-child(5)').nextSibling.textContent = ` ${game.time_left}`;
+                            const scoreDisplay = card.querySelector('.score-display');
+                            const awayScore = card.querySelector('.score-away');
+                            const homeScore = card.querySelector('.score-home');
+                            const periodValue = card.querySelector('.period-value');
+                            const timeValue = card.querySelector('.time-value');
+                            
+                            if (awayScore && homeScore) {
+                                awayScore.textContent = game.away_score;
+                                homeScore.textContent = game.home_score;
+                            }
+                            
+                            if (periodValue) {
+                                periodValue.textContent = game.period;
+                            }
+                            
+                            if (timeValue) {
+                                timeValue.textContent = game.time_left;
+                            }
                         }
                     });
                 })
@@ -29,9 +397,8 @@
         }
 
         // Refresh scores every 5 seconds
-        setInterval(updateLiveGames, 5000);
+        setInterval(updateLiveGames, refreshRate);
 
-    
         // Helper function to format the NBA API game clock from PT00M00.00S to MM:SS
         function formatGameClock(timeStr) {
             const match = timeStr.match(/PT(\d+)M([\d.]+)S/);
@@ -42,55 +409,107 @@
             }
             return "00:00";  // Default if format is incorrect
         }
-    
-        // Automatically refresh the game scores every few seconds
-        setInterval(updateLiveGames, refreshRate);
     </script>    
 </head>
 <body>
     <!-- Navigation Bar -->
-
     {% include 'navbar.html' %}
+
+    <!-- Floating Background Elements -->
+    <div class="floating-elements">
+        <div class="floating-circle"></div>
+        <div class="floating-circle"></div>
+        <div class="floating-circle"></div>
+        <div class="floating-circle"></div>
+    </div>
+    
+    <!-- Header Section -->
+    <div class="games-header">
+        <h1 class="games-title">
+            <i class="fas fa-basketball-ball me-3"></i>
+            Live NBA Games
+        </h1>
+        <div class="live-indicator">
+            <i class="fas fa-circle"></i>
+            LIVE
+        </div>
+        <p class="lead opacity-75 mt-3">Real-time game scores and updates</p>
+    </div>
 
     <!-- Main Content -->
     <div class="container mt-4">
-        <h1 class="text-center mb-4">Live NBA Games</h1>
-    
         {% if games %}
             <div class="row justify-content-center">
                 {% for game in games %}
-                <a href="/boxscore/{{ game.gameId }}" style="text-decoration: none; width: 100%;">
-                    <div class="col-12 mb-3" id="{{ game.gameId }}-{{ game.home_team }}-v-{{ game.away_team }}">
-                        <div class="card text-center shadow-sm" style="max-width: 800px; margin: auto;">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center justify-content-center mb-3">
-                                    <img src="https://cdn.nba.com/logos/nba/{{ game.away_team_id }}/primary/L/logo.svg" 
-                                        alt="{{ game.away_team }}" 
-                                        class="img-fluid me-2" 
-                                        style="height: 50px;">
-                                    <h5 class="card-title m-0">{{ game.away_team }}</h5>
-                                    <h5 class="mx-2">@</h5>
-                                    <h5 class="card-title m-0">{{ game.home_team }}</h5>
-                                    <img src="https://cdn.nba.com/logos/nba/{{ game.home_team_id }}/primary/L/logo.svg" 
-                                        alt="{{ game.home_team }}" 
-                                        class="img-fluid ms-2" 
-                                        style="height: 50px;">
+                <div class="col-12 col-lg-10 col-xl-8">
+                    <a href="/boxscore/{{ game.gameId }}">
+                        <div class="game-card glass-card" id="{{ game.gameId }}-{{ game.home_team }}-v-{{ game.away_team }}">
+                            <div class="game-content">
+                                <!-- Teams Display -->
+                                <div class="teams-container">
+                                    <div class="team-section away-team">
+                                        <div class="team-name">{{ game.away_team }}</div>
+                                        <img src="https://cdn.nba.com/logos/nba/{{ game.away_team_id }}/primary/L/logo.svg" 
+                                            alt="{{ game.away_team }}" 
+                                            class="team-logo">
+                                    </div>
+                                    
+                                    <div class="vs-separator">
+                                        @
+                                    </div>
+                                    
+                                    <div class="team-section home-team">
+                                        <img src="https://cdn.nba.com/logos/nba/{{ game.home_team_id }}/primary/L/logo.svg" 
+                                            alt="{{ game.home_team }}" 
+                                            class="team-logo">
+                                        <div class="team-name">{{ game.home_team }}</div>
+                                    </div>
                                 </div>
-                                <p class="card-text">
-                                    <strong>Score:</strong> {{ game.away_score }} - {{ game.home_score }}
-                                </p>
-                                <p class="card-text">
-                                    <strong>Period:</strong> {{ game.period }} | 
-                                    <strong>Time Left:</strong> {{ game.time_left }}
-                                </p>
+                                
+                                <!-- Game Info -->
+                                <div class="game-info">
+                                    <div class="score-display">
+                                        <span class="score-away">{{ game.away_score }}</span>
+                                        <span class="score-separator">-</span>
+                                        <span class="score-home">{{ game.home_score }}</span>
+                                    </div>
+                                    
+                                    <div class="game-status">
+                                        <div class="status-item">
+                                            <i class="fas fa-clock"></i>
+                                            <span class="status-label">Period:</span>
+                                            <span class="status-value period-value">{{ game.period }}</span>
+                                        </div>
+                                        
+                                        <div class="status-item">
+                                            <i class="fas fa-stopwatch"></i>
+                                            <span class="status-label">Time:</span>
+                                            <span class="status-value time-value">{{ game.time_left }}</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </a>
+                    </a>
+                </div>
                 {% endfor %}
             </div>
         {% else %}
-            <p class="text-center">No live games currently available.</p>
+            <div class="row justify-content-center">
+                <div class="col-12 col-lg-8">
+                    <div class="glass-card">
+                        <div class="no-games-message">
+                            <div class="no-games-icon">
+                                <i class="fas fa-basketball-ball"></i>
+                            </div>
+                            <div class="no-games-text">
+                                No live games currently available
+                            </div>
+                            <p class="mt-3 opacity-75">Check back later for live game updates</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         {% endif %}
     </div>
     

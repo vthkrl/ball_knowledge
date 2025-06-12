@@ -6,137 +6,452 @@
     <title>NBA League Leaders</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="{{ url_for('static', filename='js/dark_mode.js') }}" defer></script>
     <script>
         function navigateToCategory() {
             const category = document.getElementById('stat-category').value;
-            window.location.href = `/league-leaders/${category}`;
-        }
-
-        function applyDarkMode() {
-            if (localStorage.getItem("darkMode") === "enabled") {
-                document.body.classList.add("dark-mode");
+            if (category) {
+                window.location.href = `/league-leaders/${category}`;
             }
         }
-
-        function toggleDarkMode() {
-            document.body.classList.toggle("dark-mode");
-            localStorage.setItem("darkMode", document.body.classList.contains("dark-mode") ? "enabled" : "disabled");
-        }
-
-        document.addEventListener('DOMContentLoaded', applyDarkMode);
     </script>
     <style>
-        /* General table styling */
-        .leaderboard-container {
-            max-width: 800px;
-            margin: auto;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        /* Base modern styles */
+        * {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        .table {
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .table th, .table td {
-            padding: 12px;
-            vertical-align: middle;
-        }
-
-        .table th {
-            background-color: #343a40;
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
             color: white;
-            font-weight: 600;
         }
-
-        .table img {
+        
+        .glass-card {
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .floating-elements {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .floating-circle {
+            position: absolute;
             border-radius: 50%;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
         }
-
-        /* Dark mode */
-        body.dark-mode {
-            background-color: #121212;
+        
+        .floating-circle:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 20%;
+            left: 10%;
+            background: #ff6b6b;
+            animation-delay: 0s;
+        }
+        
+        .floating-circle:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            top: 60%;
+            right: 15%;
+            background: #4ecdc4;
+            animation-delay: 2s;
+        }
+        
+        .floating-circle:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            bottom: 30%;
+            left: 20%;
+            background: #45b7d1;
+            animation-delay: 4s;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        .leaders-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+        }
+        
+        .leaders-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+        
+        .category-selector {
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+        
+        .category-selector label {
+            font-size: 1.2rem;
+            font-weight: 600;
             color: #ffffff;
+            margin-bottom: 1rem;
+            display: block;
         }
-
-        body.dark-mode .leaderboard-container {
-            background-color: #1e1e1e;
+        
+        .form-select {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            color: white;
+            font-size: 1.1rem;
+            padding: 12px 20px;
+            min-width: 200px;
+            transition: all 0.3s ease;
         }
-
-        body.dark-mode .table {
-            background-color: #222;
+        
+        .form-select:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #4ecdc4;
+            box-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
             color: white;
         }
-
-        body.dark-mode .table th {
-            background-color: #2a2a2a;
+        
+        .form-select option {
+            background: #1a1a2e;
+            color: white;
         }
-
-        body.dark-mode .table td {
-            border-color: #444;
+        
+        .leaderboard-section {
+            max-width: 1000px;
+            margin: 0 auto;
         }
-
-        body.dark-mode select, 
-        body.dark-mode .form-label {
+        
+        .leaderboard-header {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.08));
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+        
+        .player-row {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 1.25rem;
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .player-row:hover {
+            transform: translateX(5px);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.08));
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .player-row::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .player-row:hover::before {
+            left: 100%;
+        }
+        
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .player-photo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));
+            transition: transform 0.3s ease;
+            object-fit: cover;
+        }
+        
+        .player-row:hover .player-photo {
+            transform: scale(1.1);
+        }
+        
+        .player-name {
+            font-weight: 600;
+            font-size: 1.1rem;
             color: #ffffff;
-            background-color: #333333;
         }
-
-        body.dark-mode .navbar {
-            background-color: #222 !important;
+        
+        .team-name {
+            font-size: 0.9rem;
+            color: #4ecdc4;
+            font-weight: 500;
+        }
+        
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 1rem;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .rank-badge.top-3 {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+        
+        .rank-badge.top-10 {
+            background: linear-gradient(135deg, #4ecdc4, #45b7d1);
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+        }
+        
+        .rank-badge.others {
+            background: linear-gradient(135deg, #feca57, #ff9ff3);
+            box-shadow: 0 4px 15px rgba(254, 202, 87, 0.3);
+        }
+        
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #4ecdc4;
+            text-shadow: 0 2px 10px rgba(78, 205, 196, 0.3);
+        }
+        
+        .row-grid {
+            display: grid;
+            grid-template-columns: 70px 3fr 1fr 100px;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .header-grid {
+            display: grid;
+            grid-template-columns: 70px 3fr 1fr 100px;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .category-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #4ecdc4, #45b7d1);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .leaders-title {
+                font-size: 2.5rem;
+            }
+            
+            .row-grid, .header-grid {
+                grid-template-columns: 50px 2fr 1fr 80px;
+                gap: 0.5rem;
+            }
+            
+            .player-name {
+                font-size: 1rem;
+            }
+            
+            .player-photo {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .rank-badge {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+            }
+            
+            .stat-value {
+                font-size: 1.1rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .row-grid, .header-grid {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 0.5rem;
+            }
+            
+            .player-info {
+                justify-content: center;
+            }
+            
+            .leaders-title {
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
 <body>
     {% include 'navbar.html' %}
+    
+    <!-- Floating Background Elements -->
+    <div class="floating-elements">
+        <div class="floating-circle"></div>
+        <div class="floating-circle"></div>
+        <div class="floating-circle"></div>
+    </div>
+    
+    <!-- Header Section -->
+    <div class="leaders-header">
+        <h1 class="leaders-title">
+            <i class="fas fa-chart-line me-3"></i>
+            NBA League Leaders
+        </h1>
+        <p class="lead opacity-75">Top performers across all statistical categories</p>
+    </div>
 
-    <div class="container mt-4">
-        <h1 class="text-center mb-4">Leading the league in {{ category }}</h1>
-        <div class="text-center mb-4">
-            <label for="stat-category" class="form-label">Select Category:</label>
-            <select id="stat-category" class="form-select w-auto d-inline-block" onchange="navigateToCategory()">
-                {% for category in [
-                    'PPG', 'RPG', 'APG', 'SPG', 'BPG', '3PMPG', '3PAPG', 
-                    'FTMPG', 'FTAPG', 'FGMPG', 'MINPG', 
-                    'PTS', 'REB', 'AST', 'STL', 'BLK', 'TOV', 'FG_PCT', 'FG3_PCT', 'FT_PCT'
+    <div class="container">
+        <!-- Category Selector -->
+        <div class="category-selector">
+            <label for="stat-category">Select Statistical Category:</label>
+            <select id="stat-category" class="form-select d-inline-block" onchange="navigateToCategory()">
+                <option value="">Choose a category...</option>
+                {% for cat in [
+                    ('PPG', 'Points Per Game'), 
+                    ('RPG', 'Rebounds Per Game'), 
+                    ('APG', 'Assists Per Game'), 
+                    ('SPG', 'Steals Per Game'), 
+                    ('BPG', 'Blocks Per Game'), 
+                    ('3PMPG', '3-Pointers Made Per Game'), 
+                    ('3PAPG', '3-Point Attempts Per Game'), 
+                    ('FTMPG', 'Free Throws Made Per Game'), 
+                    ('FTAPG', 'Free Throw Attempts Per Game'), 
+                    ('FGMPG', 'Field Goals Made Per Game'), 
+                    ('MINPG', 'Minutes Per Game'),
+                    ('PTS', 'Total Points'), 
+                    ('REB', 'Total Rebounds'), 
+                    ('AST', 'Total Assists'), 
+                    ('STL', 'Total Steals'), 
+                    ('BLK', 'Total Blocks'), 
+                    ('TOV', 'Total Turnovers'), 
+                    ('FG_PCT', 'Field Goal Percentage'), 
+                    ('FG3_PCT', '3-Point Percentage'), 
+                    ('FT_PCT', 'Free Throw Percentage')
                 ] %}
-                    <option value="{{ category }}" {% if category == selected_category %}selected{% endif %}>
-                        {{ category }}
+                    <option value="{{ cat[0] }}" {% if cat[0] == category %}selected{% endif %}>
+                        {{ cat[1] }}
                     </option>
                 {% endfor %}
             </select>
         </div>
 
-        <div class="leaderboard-container">
-            <table class="table table-dark table-striped text-center">
-                <thead>
-                    <tr>
-                        <th>Rank</th>
-                        <th>Player</th>
-                        <th>Name</th>
-                        <th>Team</th>
-                        <th>{{ category }}</th>
-                    </tr>
-                </thead>
-                <tbody id="leaderboard-body">
-                    {% for player in league_leaders %}
-                        <tr>
-                            <td>{{ loop.index }}</td>
-                            <td>
+        <!-- Leaderboard Section -->
+        <div class="leaderboard-section">
+            {% if category %}
+                <div class="text-center mb-4">
+                    <span class="category-badge">{{ category }} Leaders</span>
+                </div>
+                
+                <!-- Table Header -->
+                <div class="leaderboard-header">
+                    <div class="header-grid">
+                        <div><strong>Rank</strong></div>
+                        <div><strong>Player</strong></div>
+                        <div><strong>Team</strong></div>
+                        <div><strong>{{ category }}</strong></div>
+                    </div>
+                </div>
+                
+                <!-- Player Rows -->
+                {% for player in league_leaders %}
+                <a href="/player_stats/{{ player['PLAYER_ID'] }}" style="text-decoration: none;"><div class="player-row glass-card">
+                    <div class="row-grid">
+                        <div>
+                            <span class="rank-badge {% if loop.index <= 3 %}top-3{% elif loop.index <= 10 %}top-10{% else %}others{% endif %}">
+                                {{ loop.index }}
+                            </span>
+                        </div>
+                        <div>
+                            <div class="player-info">
                                 <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/{{ player['PLAYER_ID'] }}.png" 
-                                     class="rounded-circle" width="50" 
-                                     onerror="this.src='https://via.placeholder.com/50'">
-                            </td>
-                            <td>{{ player['PLAYER'] }}</td>
-                            <td>{{ player['TEAM'] }}</td>
-                            <td>{{ player[category] }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>            
-            </table>
+                                     class="player-photo" 
+                                     onerror="this.src='https://via.placeholder.com/50/cccccc/ffffff?text=?'"
+                                     alt="{{ player['PLAYER'] }}">
+                                <div>
+                                    <div class="player-name">{{ player['PLAYER'] }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="team-name">{{ player['TEAM'] }}</div>
+                        <div class="stat-value">
+                            {% if category in ['FG_PCT', 'FG3_PCT', 'FT_PCT'] %}
+                                {{ "%.1f"|format(player[category] * 100) }}%
+                            {% elif category in ['PPG', 'RPG', 'APG', 'SPG', 'BPG', '3PMPG', '3PAPG', 'FTMPG', 'FTAPG', 'FGMPG', 'MINPG'] %}
+                                {{ "%.1f"|format(player[category]) }}
+                            {% else %}
+                                {{ player[category] }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div></a>
+                {% endfor %}
+            {% else %}
+                <div class="text-center">
+                    <div class="glass-card p-5">
+                        <i class="fas fa-chart-bar fa-3x mb-3 text-muted"></i>
+                        <h3>Select a Category</h3>
+                        <p class="text-muted">Choose a statistical category from the dropdown above to view the league leaders.</p>
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </div>
 

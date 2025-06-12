@@ -1,9 +1,6 @@
-from nba_api.stats.endpoints import playercareerstats
-from nba_api.stats.endpoints import drafthistory
-from nba_api.stats.static import players
-from nba_api.stats.endpoints import playerawards
-from nba_api.stats.static import teams
-from nba_api.stats.endpoints import leaguestandings
+from nba_api.stats.endpoints import playercareerstats, leaguestandings, drafthistory, playerawards, commonplayerinfo
+from nba_api.stats.static import players, teams
+from datetime import datetime
 import pandas as pd
 
 #['PLAYER_ID', 'SEASON_ID', 'LEAGUE_ID', 'TEAM_ID', 'TEAM_ABBREVIATION', 'PLAYER_AGE', 'GP', 'GS', 'MIN', 
@@ -79,18 +76,34 @@ def getCurrentSeasonStats(p_id):
         player_stats_df = playercareerstats.PlayerCareerStats(player_id=p_id).get_data_frames()[0]
 
         if player_stats_df.empty:
-            return {"PPG": 0.00, "RPG": 0.00, "APG": 0.00}
+            return {"PPG": 0.00, "RPG": 0.00, "APG": 0.00, "SPG": 0.00, "BPG": 0.00}
 
-        season = player_stats_df.iloc[-1]  # Get the latest season stats
+        # Determine the current NBA season string (e.g., "2024-25")
+        today = datetime.today()
+        year = today.year
+        if today.month >= 10:  # NBA season typically starts in October
+            current_season = f"{year}-{str(year + 1)[-2:]}"
+        else:
+            current_season = f"{year - 1}-{str(year)[-2:]}"
+
+        # Filter to the current season only
+        current_season_df = player_stats_df[player_stats_df['SEASON_ID'] == current_season]
+
+        if current_season_df.empty:
+            return {"PPG": 0.00, "RPG": 0.00, "APG": 0.00, "SPG": 0.00, "BPG": 0.00}
+
+        season = current_season_df.iloc[0]
 
         return {
             "PPG": round(season.get("PTS", 0) / max(season.get("GP", 1), 1), 2),
             "RPG": round(season.get("REB", 0) / max(season.get("GP", 1), 1), 2),
             "APG": round(season.get("AST", 0) / max(season.get("GP", 1), 1), 2),
+            "SPG": round(season.get("STL", 0) / max(season.get("GP", 1), 1), 2),
+            "BPG": round(season.get("BLK", 0) / max(season.get("GP", 1), 1), 2)
         }
     except Exception as e:
         print(f"Error fetching stats for player {p_id}: {e}")
-        return {"PPG": 0.00, "RPG": 0.00, "APG": 0.00}
+        return {"PPG": 0.00, "RPG": 0.00, "APG": 0.00, "SPG": 0.00, "BPG": 0.00}
 
 def getAwards(p_id: int):
     awards = playerawards.PlayerAwards(player_id= p_id).get_data_frames()[0]
@@ -147,6 +160,17 @@ def getTeamLogo(team_id: int):
     image = f'https://cdn.nba.com/logos/nba/{team_id}/primary/L/logo.svg'
 
     return image
+
+def getPlayerInfo(p_id: int):
+    info = commonplayerinfo.CommonPlayerInfo(p_id).get_data_frames()[0]
+
+    return info
+
+def constructPlayerBio(p_id: int):
+    common_info = getPlayerInfo(p_id)
+    stats = getCurrentSeasonStats(p_id)
+
+    return {'info': common_info, 'stats': stats}
 
 def gmsc(PTS: int, FG: int, FGA: int, FTA: int, FT: int, ORB: int, DRB: int, STL: int, AST: int, BLK: int, PF: int, TOV: int) -> int:
     return int(round(PTS + 0.4 * FG - 0.7 * FGA - 0.4 * (FTA - FT) + 0.7 * ORB + 0.3 * DRB + STL + 0.7 * AST + 0.7 * BLK - 0.4 * PF - TOV))

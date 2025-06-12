@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NBA Game Box Score</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="{{ url_for('static', filename='js/dark_mode.js') }}" defer></script>
     <script>
@@ -15,8 +16,8 @@
               .then(response => response.json())
               .then(data => {
                   document.getElementById('game-clock').textContent = data.gameDetails.gameStatusText;
-                  document.getElementById('home-team-score').textContent = `Score: ${data.homeTeam.score}`;
-                  document.getElementById('away-team-score').textContent = `Score: ${data.awayTeam.score}`;
+                  document.getElementById('home-team-score').textContent = data.homeTeam.score;
+                  document.getElementById('away-team-score').textContent = data.awayTeam.score;
 
                   const updateTable = (players, team) => {
                       let tbody = document.querySelector(`#${team}-players tbody`);
@@ -26,28 +27,36 @@
                           if (parseInt(player.played) !== 0) {
                               let row = document.createElement('tr');
                               row.innerHTML = `
-                                  <td><a href="/${gameId}/${player.personId}"><img src="https://cdn.nba.com/headshots/nba/latest/1040x760/${player.personId}.png" class="img-fluid" style="max-height: 75px;"></a>
-                                      <div>${player.firstName} ${player.familyName}</div></td>
-                                  <td class="minutes">${formatMinutes(player.statistics.minutesCalculated) || '0'}</td>
-                                  <td class="points">${player.statistics.points || '0'}</td>
-                                  <td class="rebounds">${player.statistics.reboundsTotal || '0'}</td>
-                                  <td class="assists">${player.statistics.assists || '0'}</td>
-                                  <td class="steals">${player.statistics.steals || '0'}</td>
-                                  <td class="blocks">${player.statistics.blocks || '0'}</td>
-                                  <td class="fg">${player.statistics.fieldGoalsMade}-${player.statistics.fieldGoalsAttempted}</td>
-                                  <td class="three">${player.statistics.threePointersMade}-${player.statistics.threePointersAttempted}</td>
-                                  <td class="ft">${player.statistics.freeThrowsMade}-${player.statistics.freeThrowsAttempted}</td>
-                                  <td class="turnovers">${player.statistics.turnovers || '0'}</td>
-                                  <td class="fouls">${player.statistics.foulsPersonal || '0'}</td>
-                                  <td class="plusminus">${player.statistics.plusMinusPoints || '0'}</td>
+                                  <td class="player-cell">
+                                      <a href="/${gameId}/${player.personId}" class="player-link">
+                                          <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/${player.personId}.png" class="player-avatar" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNmMGYwZjAiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNSIgcj0iNyIgZmlsbD0iIzk5OTk5OSIvPgo8cGF0aCBkPSJNMzAgMzVjMC01LjUyMy00LjQ3Ny0xMC0xMC0xMHMtMTAgNC40NzctMTAgMTAiIGZpbGw9IiM5OTk5OTkiLz4KPC9zdmc+'">
+                                          <div class="player-name">${player.firstName} ${player.familyName}</div>
+                                      </a>
+                                  </td>
+                                  <td class="stat-cell">${formatMinutes(player.statistics.minutesCalculated) || '0'}</td>
+                                  <td class="stat-cell stat-highlight">${player.statistics.points || '0'}</td>
+                                  <td class="stat-cell">${player.statistics.reboundsTotal || '0'}</td>
+                                  <td class="stat-cell">${player.statistics.assists || '0'}</td>
+                                  <td class="stat-cell">${player.statistics.steals || '0'}</td>
+                                  <td class="stat-cell">${player.statistics.blocks || '0'}</td>
+                                  <td class="stat-cell">${player.statistics.fieldGoalsMade}-${player.statistics.fieldGoalsAttempted}</td>
+                                  <td class="stat-cell">${player.statistics.threePointersMade}-${player.statistics.threePointersAttempted}</td>
+                                  <td class="stat-cell">${player.statistics.freeThrowsMade}-${player.statistics.freeThrowsAttempted}</td>
+                                  <td class="stat-cell">${player.statistics.turnovers || '0'}</td>
+                                  <td class="stat-cell">${player.statistics.foulsPersonal || '0'}</td>
+                                  <td class="stat-cell ${player.statistics.plusMinusPoints >= 0 ? 'positive' : 'negative'}">${player.statistics.plusMinusPoints || '0'}</td>
                               `;
                               tbody.appendChild(row);
                           } else {
                             let row = document.createElement('tr');
                             row.innerHTML = `
-                            <td><a href="/${gameId}/${player.personId}"><img src="https://cdn.nba.com/headshots/nba/latest/1040x760/${player.personId}.png" class="img-fluid" style="max-height: 75px;"></a>
-                            <div>${player.firstName} ${player.familyName}</div></td>
-                            <td colspan="12">Did not play.</td>`;
+                            <td class="player-cell">
+                                <a href="/${gameId}/${player.personId}" class="player-link">
+                                    <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/${player.personId}.png" class="player-avatar" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNmMGYwZjAiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNSIgcj0iNyIgZmlsbD0iIzk5OTk5OSIvPgo8cGF0aCBkPSJNMzAgMzVjMC01LjUyMy00LjQ3Ny0xMC0xMC0xMHMtMTAgNC40NzctMTAgMTAiIGZpbGw9IiM5OTk5OTkiLz4KPC9zdmc+'">
+                                    <div class="player-name">${player.firstName} ${player.familyName}</div>
+                                </a>
+                            </td>
+                            <td colspan="12" class="dnp-cell">Did not play</td>`;
                             tbody.appendChild(row);
                           }
                       });
@@ -75,165 +84,469 @@
       }
   </script>
   <style>
+    :root {
+        --primary-blue: #1e40af;
+        --secondary-blue: #3b82f6;
+        --accent-orange: #f97316;
+        --success-green: #10b981;
+        --danger-red: #ef4444;
+        --dark-bg: #0f172a;
+        --card-bg: #1e293b;
+        --surface-bg: #334155;
+        --text-primary: #f8fafc;
+        --text-secondary: #cbd5e1;
+        --text-muted: #64748b;
+        --border-color: #334155;
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background: linear-gradient(135deg, var(--dark-bg) 0%, #1a202c 100%);
+        color: var(--text-primary);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.6;
+        min-height: 100vh;
+    }
+
+    .container {
+        max-width: 1400px;
+    }
+
+    /* Live indicator */
     #red-dot {
-      color: red;
-      display: inline;
-      font-size: 72px;
-    }
-    table {
-        border-collapse: separate;
-        border-spacing: 0;
-        width: 100%;
-        border-radius: 10px;
-        overflow: hidden;
+        color: var(--danger-red);
+        display: inline-block;
+        font-size: 16px;
+        animation: pulse 2s infinite;
     }
 
-    th, td {
-        padding: 10px;
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.3; }
+    }
+
+    /* Game header */
+    .game-header {
+        background: linear-gradient(135deg, var(--card-bg) 0%, var(--surface-bg) 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--border-color);
+    }
+
+    .game-status {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--accent-orange);
+        margin-bottom: 1rem;
         text-align: center;
-        vertical-align: middle;
     }
 
-    thead th:first-child {
-        border-top-left-radius: 10px;
+    .game-info {
+        text-align: center;
+        margin-bottom: 2rem;
     }
 
-    thead th:last-child {
-        border-top-right-radius: 10px;
+    .game-info h3 {
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
     }
 
-    tbody tr:last-child td:first-child {
-        border-bottom-left-radius: 10px;
+    .game-info h4, .game-info h5 {
+        color: var(--text-secondary);
+        font-weight: 400;
     }
 
-    tbody tr:last-child td:last-child {
-        border-bottom-right-radius: 10px;
+    /* Team section */
+    .team-section {
+        background: var(--card-bg);
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid var(--border-color);
+        height: 100%;
+        transition: transform 0.2s ease;
     }
 
+    .team-section:hover {
+        transform: translateY(-2px);
+    }
+
+    .team-name {
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+    }
+
+    .team-logo {
+        max-height: 120px;
+        margin-bottom: 1rem;
+        filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+    }
+
+    .team-score {
+        font-size: 3rem;
+        font-weight: 800;
+        color: var(--secondary-blue);
+        margin: 0;
+    }
+
+    /* Table styles */
+    .stats-section {
+        background: var(--card-bg);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-md);
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-title::before {
+        content: '';
+        width: 4px;
+        height: 24px;
+        background: var(--secondary-blue);
+        border-radius: 2px;
+    }
+
+    .stats-table {
+        background: var(--surface-bg);
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .stats-table thead {
+        background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+    }
+
+    .stats-table th {
+        padding: 1rem 0.75rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border: none;
+        color: white;
+    }
+
+    .stats-table tbody tr {
+        border-bottom: 1px solid var(--border-color);
+        transition: background-color 0.2s ease;
+    }
+
+    .stats-table tbody tr:hover {
+        background-color: rgba(59, 130, 246, 0.1);
+    }
+
+    .stats-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .player-cell {
+        padding: 1rem 0.75rem;
+        border: none;
+    }
+
+    .player-link {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+        color: inherit;
+        transition: color 0.2s ease;
+    }
+
+    .player-link:hover {
+        color: var(--secondary-blue);
+    }
+
+    .player-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--border-color);
+        transition: border-color 0.2s ease;
+    }
+
+    .player-link:hover .player-avatar {
+        border-color: var(--secondary-blue);
+    }
+
+    .player-name {
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .stat-cell {
+        padding: 1rem 0.75rem;
+        font-weight: 500;
+        font-size: 0.9rem;
+        border: none;
+        color: var(--text-secondary);
+    }
+
+    .stat-highlight {
+        color: var(--accent-orange);
+        font-weight: 600;
+    }
+
+    .positive {
+        color: var(--success-green);
+    }
+
+    .negative {
+        color: var(--danger-red);
+    }
+
+    .dnp-cell {
+        padding: 1rem 0.75rem;
+        font-style: italic;
+        color: var(--text-muted);
+        border: none;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .container {
+            padding: 0 1rem;
+        }
+
+        .game-header {
+            padding: 1.5rem;
+        }
+
+        .team-score {
+            font-size: 2.5rem;
+        }
+
+        .stats-table {
+            font-size: 0.8rem;
+        }
+
+        .stats-table th,
+        .stat-cell,
+        .player-cell {
+            padding: 0.75rem 0.5rem;
+        }
+
+        .player-avatar {
+            width: 32px;
+            height: 32px;
+        }
+
+        .player-name {
+            font-size: 0.8rem;
+        }
+
+        /* Hide less important columns on mobile */
+        .stats-table th:nth-child(n+9):nth-child(-n+11),
+        .stats-table td:nth-child(n+9):nth-child(-n+11) {
+            display: none;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .stats-table th:nth-child(n+6):nth-child(-n+8),
+        .stats-table td:nth-child(n+6):nth-child(-n+8) {
+            display: none;
+        }
+    }
+
+    /* Loading animation */
+    @keyframes shimmer {
+        0% { background-position: -200px 0; }
+        100% { background-position: calc(200px + 100%) 0; }
+    }
+
+    .loading {
+        background: linear-gradient(90deg, var(--surface-bg) 0%, var(--border-color) 50%, var(--surface-bg) 100%);
+        background-size: 200px 100%;
+        animation: shimmer 1.5s infinite;
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: var(--dark-bg);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--surface-bg);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--border-color);
+    }
   </style>
 </head>
 <body>
     {% include 'navbar.html' %}
 
     <div class="container mt-4">
-        <h1 class="text-center mb-4" id="game-clock">{{ gameDetails['gameStatusText'] }}</h1>
-        <div class="text-center">
-            <h3>{{ awayTeam['teamName'] }} @ {{ homeTeam['teamName'] }}</h3>
-            <h4>{{ location['arenaName'] }}, {{ location['arenaCity'] }}, {{ location['arenaState'] }}</h4>
-            <h5>Game Time: {{ gameTimeLTZ }}</h5>
-        </div>
-
-        <div class="row mt-4 text-center">
-            <div class="col-md-6">
-                <h2>{{ awayTeam['teamName'] }}</h2>
-                <img src="https://cdn.nba.com/logos/nba/{{ awayTeam['teamId'] }}/primary/L/logo.svg" class="img-fluid" style="max-height: 150px;">
-                <h3 id="away-team-score">Score: {{ awayTeam['score'] }}</h3>
+        <div class="game-header">
+            <h1 class="game-status" id="game-clock">{{ gameDetails['gameStatusText'] }}</h1>
+            <div class="game-info">
+                <h3>{{ awayTeam['teamName'] }} @ {{ homeTeam['teamName'] }}</h3>
+                <h4><i class="fas fa-map-marker-alt me-2"></i>{{ location['arenaName'] }}, {{ location['arenaCity'] }}, {{ location['arenaState'] }}</h4>
+                <h5><i class="fas fa-clock me-2"></i>{{ gameTimeLTZ }}</h5>
             </div>
-            <div class="col-md-6">
-                <h2>{{ homeTeam['teamName'] }}</h2>
-                <img src="https://cdn.nba.com/logos/nba/{{ homeTeam['teamId'] }}/primary/L/logo.svg" class="img-fluid" style="max-height: 150px;">
-                <h3 id="home-team-score">Score: {{ homeTeam['score'] }}</h3>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="team-section text-center">
+                        <h2 class="team-name">{{ awayTeam['teamName'] }}</h2>
+                        <img src="https://cdn.nba.com/logos/nba/{{ awayTeam['teamId'] }}/primary/L/logo.svg" class="team-logo" alt="{{ awayTeam['teamName'] }} Logo">
+                        <div class="team-score" id="away-team-score">{{ awayTeam['score'] }}</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="team-section text-center">
+                        <h2 class="team-name">{{ homeTeam['teamName'] }}</h2>
+                        <img src="https://cdn.nba.com/logos/nba/{{ homeTeam['teamId'] }}/primary/L/logo.svg" class="team-logo" alt="{{ homeTeam['teamName'] }} Logo">
+                        <div class="team-score" id="home-team-score">{{ homeTeam['score'] }}</div>
+                    </div>
+                </div>
             </div>
         </div>
 
         {% include 'playbyplay.html' %}
 
-        <div class="mt-4">
-            <h3 class="text-center">{{ homeTeam['teamName'] }} Player Stats</h3>
-            <table id="home-players" class="table text-center">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Player</th>
-                        <th>Minutes</th>
-                        <th>Points</th>
-                        <th>Rebounds</th>
-                        <th>Assists</th>
-                        <th>Steals</th>
-                        <th>Blocks</th>
-                        <th>FG</th>
-                        <th>3P</th>
-                        <th>FT</th>
-                        <th>TO</th>
-                        <th>Fouls</th>
-                        <th>+/-</th>
-                    </tr>
-                </thead>
-                  <tbody>
-                    {% for player in homeTeam['players'] %}
-                    <tr id="player-{{ player['personId'] }}-home">
-                      <td><a href="/{{ gameDetails['gameId'] }}/{{ player['personId'] }}"><img src="https://cdn.nba.com/headshots/nba/latest/1040x760/{{ player['personId'] }}.png" alt="{{ player['firstName'] }}" class="img-fluid" style="max-height: 75px;"></a>
-                        <div>{{ player['firstName'] }} {{ player['familyName'] }}</div></td>
-                      {% if player.get('played', 0) | int == 1 %}
-                        {% if player.get('oncourt', 0) | int == 1 %}
-                          <td class="minutes">{{ player['statistics']['minutesCalculated'] }}<span id='red-dot'>.</span></td>
-                        {% else %}
-                          <td class="minutes">{{ player['statistics']['minutesCalculated'] }}</td>
-                        {% endif %}
-                        <td class="points">{{ player['statistics']['points'] }}</td>
-                        <td class="rebounds">{{ player['statistics']['reboundsTotal'] }}</td>
-                        <td class="assists">{{ player['statistics']['assists'] }}</td>
-                        <td class="steals">{{ player['statistics']['steals'] }}</td>
-                        <td class="blocks">{{ player['statistics']['blocks'] }}</td>
-                        <td class="fg">{{ player['statistics']['fieldGoalsMade'] }}-{{ player['statistics']['fieldGoalsAttempted'] }}</td>
-                        <td class="three">{{ player['statistics']['threePointersMade'] }}-{{ player['statistics']['threePointersAttempted'] }}</td>
-                        <td class="ft">{{ player['statistics']['freeThrowsMade'] }}-{{ player['statistics']['freeThrowsAttempted'] }}</td>
-                        <td class="turnovers">{{ player['statistics']['turnovers'] }}</td>
-                        <td class="fouls">{{ player['statistics']['foulsPersonal'] }}</td>
-                        <td class="plusminus">{{ player['statistics']['plusMinusPoints'] }}</td>
-                      {% else %}
-                        <td colspan="12">Did not play.</td>
-                      {% endif %}
-                    </tr>
-                  {% endfor %}
-                </tbody>
-            </table>
+        <div class="stats-section">
+            <h3 class="section-title">{{ homeTeam['teamName'] }} Player Stats</h3>
+            <div class="table-responsive">
+                <table id="home-players" class="table stats-table">
+                    <thead>
+                        <tr>
+                            <th>Player</th>
+                            <th>Min</th>
+                            <th>Pts</th>
+                            <th>Reb</th>
+                            <th>Ast</th>
+                            <th>Stl</th>
+                            <th>Blk</th>
+                            <th>FG</th>
+                            <th>3P</th>
+                            <th>FT</th>
+                            <th>TO</th>
+                            <th>PF</th>
+                            <th>+/-</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for player in homeTeam['players'] %}
+                        <tr id="player-{{ player['personId'] }}-home">
+                            <td class="player-cell">
+                                <a href="/{{ gameDetails['gameId'] }}/{{ player['personId'] }}" class="player-link">
+                                    <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/{{ player['personId'] }}.png" alt="{{ player['firstName'] }}" class="player-avatar" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNmMGYwZjAiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNSIgcj0iNyIgZmlsbD0iIzk5OTk5OSIvPgo8cGF0aCBkPSJNMzAgMzVjMC01LjUyMy00LjQ3Ny0xMC0xMC0xMHMtMTAgNC40NzctMTAgMTAiIGZpbGw9IiM5OTk5OTkiLz4KPC9zdmc+'">
+                                    <div class="player-name">{{ player['firstName'] }} {{ player['familyName'] }}</div>
+                                </a>
+                            </td>
+                            {% if player.get('played', 0) | int == 1 %}
+                                {% if player.get('oncourt', 0) | int == 1 %}
+                                    <td class="stat-cell">{{ player['statistics']['minutesCalculated'] }}<span id='red-dot'> ●</span></td>
+                                {% else %}
+                                    <td class="stat-cell">{{ player['statistics']['minutesCalculated'] }}</td>
+                                {% endif %}
+                                <td class="stat-cell stat-highlight">{{ player['statistics']['points'] }}</td>
+                                <td class="stat-cell">{{ player['statistics']['reboundsTotal'] }}</td>
+                                <td class="stat-cell">{{ player['statistics']['assists'] }}</td>
+                                <td class="stat-cell">{{ player['statistics']['steals'] }}</td>
+                                <td class="stat-cell">{{ player['statistics']['blocks'] }}</td>
+                                <td class="stat-cell">{{ player['statistics']['fieldGoalsMade'] }}-{{ player['statistics']['fieldGoalsAttempted'] }}</td>
+                                <td class="stat-cell">{{ player['statistics']['threePointersMade'] }}-{{ player['statistics']['threePointersAttempted'] }}</td>
+                                <td class="stat-cell">{{ player['statistics']['freeThrowsMade'] }}-{{ player['statistics']['freeThrowsAttempted'] }}</td>
+                                <td class="stat-cell">{{ player['statistics']['turnovers'] }}</td>
+                                <td class="stat-cell">{{ player['statistics']['foulsPersonal'] }}</td>
+                                <td class="stat-cell {{ 'positive' if player['statistics']['plusMinusPoints'] >= 0 else 'negative' }}">{{ player['statistics']['plusMinusPoints'] }}</td>
+                            {% else %}
+                                <td colspan="12" class="dnp-cell">Did not play</td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <div class="mt-4">
-            <h3 class="text-center">{{ awayTeam['teamName'] }} Player Stats</h3>
-            <table id="away-players" class="table text-center">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Player</th>
-                        <th>Minutes</th>
-                        <th>Points</th>
-                        <th>Rebounds</th>
-                        <th>Assists</th>
-                        <th>Steals</th>
-                        <th>Blocks</th>
-                        <th>FG</th>
-                        <th>3P</th>
-                        <th>FT</th>
-                        <th>TO</th>
-                        <th>Fouls</th>
-                        <th>+/-</th>
-                    </tr>
-                </thead>
-                <tbody>
-                  {% for player in awayTeam['players'] %}
-                    <tr id="player-{{ player['personId'] }}-away">
-                      <td><a href="/{{ gameDetails['gameId'] }}/{{ player['personId'] }}"><img src="https://cdn.nba.com/headshots/nba/latest/1040x760/{{ player['personId'] }}.png" alt="{{ player['firstName'] }}" class="img-fluid" style="max-height: 75px;"></a>
-                        <div>{{ player['firstName'] }} {{ player['familyName'] }}</div></td>
-                      {% if player.get('played', 0) | int == 1 %}
-                        <td class="minutes">{{ player['statistics']['minutesCalculated'] }}</td>
-                        <td class="points">{{ player['statistics']['points'] }}</td>
-                        <td class="rebounds">{{ player['statistics']['reboundsTotal'] }}</td>
-                        <td class="assists">{{ player['statistics']['assists'] }}</td>
-                        <td class="steals">{{ player['statistics']['steals'] }}</td>
-                        <td class="blocks">{{ player['statistics']['blocks'] }}</td>
-                        <td class="fg">{{ player['statistics']['fieldGoalsMade'] }}-{{ player['statistics']['fieldGoalsAttempted'] }}</td>
-                        <td class="three">{{ player['statistics']['threePointersMade'] }}-{{ player['statistics']['threePointersAttempted'] }}</td>
-                        <td class="ft">{{ player['statistics']['freeThrowsMade'] }}-{{ player['statistics']['freeThrowsAttempted'] }}</td>
-                        <td class="turnovers">{{ player['statistics']['turnovers'] }}</td>
-                        <td class="fouls">{{ player['statistics']['foulsPersonal'] }}</td>
-                        <td class="plusminus">{{ player['statistics']['plusMinusPoints'] }}</td>
-                      {% else %}
-                        <td colspan="12">Did not play.</td>
-                      {% endif %}
-                    </tr>
-                  {% endfor %}
-                </tbody>
-            </table>
+        <div class="stats-section">
+            <h3 class="section-title">{{ awayTeam['teamName'] }} Player Stats</h3>
+            <div class="table-responsive">
+                <table id="away-players" class="table stats-table">
+                    <thead>
+                        <tr>
+                            <th>Player</th>
+                            <th>Min</th>
+                            <th>Pts</th>
+                            <th>Reb</th>
+                            <th>Ast</th>
+                            <th>Stl</th>
+                            <th>Blk</th>
+                            <th>FG</th>
+                            <th>3P</th>
+                            <th>FT</th>
+                            <th>TO</th>
+                            <th>PF</th>
+                            <th>+/-</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for player in awayTeam['players'] %}
+                        <tr id="player-{{ player['personId'] }}-away">
+                            <td class="player-cell">
+                                <a href="/{{ gameDetails['gameId'] }}/{{ player['personId'] }}" class="player-link">
+                                    <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/{{ player['personId'] }}.png" alt="{{ player['firstName'] }}" class="player-avatar" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNmMGYwZjAiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNSIgcj0iNyIgZmlsbD0iIzk5OTk5OSIvPgo8cGF0aCBkPSJNMzAgMzVjMC01LjUyMy00LjQ3Ny0xMC0xMC0xMHMtMTAgNC40NzctMTAgMTAiIGZpbGw9IiM5OTk5OTkiLz4KPC9zdmc+'">
+                                    <div class="player-name">{{ player['firstName'] }} {{ player['familyName'] }}</div>
+                                </a>
+                            </td>
+                            {% if player.get('played', 0) | int == 1 %}
+                                <td class="stat-cell">{{ player['statistics']['minutesCalculated'] }}</td>
+                                <td class="stat-cell stat-highlight">{{ player['statistics']['points'] }}</td>
+                                <td class="stat-cell">{{ player['statistics']['reboundsTotal'] }}</td>
+                                <td class="stat-cell">{{ player['statistics']['assists'] }}</td>
+                                <td class="stat-cell">{{ player['statistics']['steals'] }}</td>
+                                <td class="stat-cell">{{ player['statistics']['blocks'] }}</td>
+                                <td class="stat-cell">{{ player['statistics']['fieldGoalsMade'] }}-{{ player['statistics']['fieldGoalsAttempted'] }}</td>
+                                <td class="stat-cell">{{ player['statistics']['threePointersMade'] }}-{{ player['statistics']['threePointersAttempted'] }}</td>
+                                <td class="stat-cell">{{ player['statistics']['freeThrowsMade'] }}-{{ player['statistics']['freeThrowsAttempted'] }}</td>
+                                <td class="stat-cell">{{ player['statistics']['turnovers'] }}</td>
+                                <td class="stat-cell">{{ player['statistics']['foulsPersonal'] }}</td>
+                                <td class="stat-cell {{ 'positive' if player['statistics']['plusMinusPoints'] >= 0 else 'negative' }}">{{ player['statistics']['plusMinusPoints'] }}</td>
+                            {% else %}
+                                <td colspan="12" class="dnp-cell">Did not play</td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
     {% include 'legal_footer.html' %}

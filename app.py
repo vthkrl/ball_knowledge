@@ -2,11 +2,11 @@ from flask import Flask, render_template, request, jsonify
 from nba_api.stats.endpoints import playercareerstats
 from nba_api.stats.static import players
 from nba_live import getTodayGames, getBoxscore
-from nba import comparePlayers, getPlayerImage, leagueStandings
+from nba import comparePlayers, getPlayerImage, leagueStandings, constructPlayerBio
 from playbyplay import getPbP
-from player_performances import getPlayerPerf
+from player_performances import getPlayerPerf, getPlayerGameLog
 from league_leaders import getLeagueLeaders
-from teams import getTeamStats, getTeamInfo, getTeamRoster
+from teams import getTeamStats, getTeamInfo, getTeamRoster, teamColors, getTeamGameLog
 from datetime import datetime, timezone
 from dateutil import parser
 from timezone import convertToLTZ
@@ -139,7 +139,7 @@ def player_suggestions():
     try:
         query = request.args.get('query', '').lower()
         all_players = [(player['full_name'], player['id']) for player in players.get_players()]
-        suggestions = [(player[0], getPlayerImage(int(player[1]))) for player in all_players if query in player[0].lower()]
+        suggestions = [(player[0], getPlayerImage(int(player[1])), player[1]) for player in all_players if query in player[0].lower()]
         return jsonify(suggestions[:10])
     except Exception as e:
         return jsonify({'error': str(e)})
@@ -193,6 +193,45 @@ def get_roster(team_id):
     except Exception as e:
         return jsonify({'error': e})
     
+@app.route('/player_stats/<p_id>')
+def get_player_stats(p_id):
+    try:
+        player = constructPlayerBio(p_id)
+        common_info = player['info']
+        stats = player['stats']
+
+        return render_template('player_stats.html',
+                               common_info=common_info,
+                               stats=stats)
+    except Exception as e:
+        return jsonify({'error': e})
+    
+@app.route('/team_colors/<team_id>')
+def get_team_colors(team_id):
+    try:
+        team_colors = teamColors(team_id)
+
+        return jsonify({'team_id': team_id, 'abb': team_colors['abb'], 'colors': team_colors['colors']})
+    except Exception as e:
+        return jsonify({'error': e})
+
+@app.route('/player_game_log/<p_id>')
+def player_game_log(p_id):
+    try:
+        game_log = getPlayerGameLog(p_id)
+
+        return jsonify(game_log)
+    except Exception as e:
+        return jsonify({'error': e})
+
+@app.route('/team_game_log/<team_id>')
+def team_game_log(team_id):
+    try:
+        game_log = getTeamGameLog(team_id)
+
+        return jsonify(game_log)
+    except Exception as e:
+        return jsonify({'error': e})
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000, debug=True)

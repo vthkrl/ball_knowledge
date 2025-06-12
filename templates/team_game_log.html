@@ -1,0 +1,483 @@
+<div class="container mt-5">
+    <div class="glass-card p-5 game-log-section">
+        <h3 class="text-center mb-4 display-6 fw-bold game-log-title">
+            <i class="fas fa-calendar-alt me-3 title-icon"></i>
+            Recent Games
+        </h3>
+
+        <!-- Cards View -->
+        <div id="games-cards" class="games-list">
+            <!-- Games will be populated here -->
+        </div>
+
+        <!-- Filter Controls -->
+        <div class="filter-controls mt-4 text-center">
+            <div class="btn-group glass-card" role="group">
+                <button type="button" class="btn filter-btn active" data-filter="all">
+                    <i class="fas fa-globe me-2"></i>All Games
+                </button>
+                <button type="button" class="btn filter-btn" data-filter="W">
+                    <i class="fas fa-trophy me-2"></i>Wins Only
+                </button>
+                <button type="button" class="btn filter-btn" data-filter="L">
+                    <i class="fas fa-times-circle me-2"></i>Losses Only
+                </button>
+                <button type="button" class="btn filter-btn" data-filter="home">
+                    <i class="fas fa-home me-2"></i>Home Games
+                </button>
+                <button type="button" class="btn filter-btn" data-filter="away">
+                    <i class="fas fa-plane me-2"></i>Away Games
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Game Log Section Styles */
+    .game-log-section {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .game-log-title {
+        position: relative;
+        background: linear-gradient(45deg, var(--primary-color, #1a1a2e), var(--secondary-color, #16213e));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .title-icon {
+        background: linear-gradient(45deg, var(--primary-color, #1a1a2e), var(--secondary-color, #16213e));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    }
+    
+    /* Filter Controls */
+    .filter-controls {
+        margin: 2rem 0;
+    }
+    
+    .btn-group .filter-btn {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        color: inherit !important;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+    }
+    
+    .btn-group .filter-btn:hover {
+        background: rgba(255, 255, 255, 0.2) !important;
+        transform: translateY(-2px);
+    }
+    
+    .btn-group .filter-btn.active {
+        background: linear-gradient(135deg, var(--primary-color, #1a1a2e), var(--secondary-color, #16213e)) !important;
+        color: white !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Games List - Vertical Layout */
+    .games-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .game-card {
+        background: rgba(255, 255, 255, 0.06) !important;
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        border-radius: 20px;
+        padding: 1.5rem;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        min-height: 120px;
+    }
+    
+    .game-card.loss {
+        opacity: 0.5;
+        filter: grayscale(0.7);
+        background: rgba(255, 255, 255, 0.03) !important;
+    }
+    
+    .game-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+        transition: left 0.6s;
+    }
+    
+    .game-card:hover::before {
+        left: 100%;
+    }
+    
+    .game-card:hover {
+        transform: translateY(-4px) scale(1.01);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        border-color: var(--primary-color, #1a1a2e) !important;
+    }
+    
+    .game-card.loss:hover {
+        opacity: 0.8;
+        filter: grayscale(0.3);
+    }
+    
+    /* Game Card Content Layout */
+    .game-content {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        gap: 2rem;
+    }
+    
+    .game-info {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+    }
+    
+    .game-date-section {
+        min-width: 100px;
+        text-align: center;
+    }
+    
+    .game-date {
+        font-size: 0.9rem;
+        opacity: 0.8;
+        font-weight: 500;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .matchup-section {
+        flex: 1;
+        text-align: center;
+    }
+    
+    .matchup-text {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(45deg, var(--primary-color, #1a1a2e), var(--secondary-color, #16213e));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .venue-indicator {
+        font-size: 0.8rem;
+        opacity: 0.7;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .record-section {
+        min-width: 80px;
+        text-align: center;
+    }
+    
+    .record-display {
+        font-size: 0.9rem;
+        font-weight: 600;
+        opacity: 0.8;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .result-section {
+        min-width: 80px;
+        text-align: center;
+    }
+    
+    .result-badge {
+        padding: 0.5rem 1.2rem;
+        border-radius: 25px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+        display: inline-block;
+    }
+    
+    .result-badge.win {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    }
+    
+    .result-badge.loss {
+        background: linear-gradient(135deg, #dc3545, #fd7e14);
+        color: white;
+        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+    }
+    
+    .game-stats {
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+    }
+    
+    .stat-item {
+        text-align: center;
+        min-width: 60px;
+    }
+    
+    .stat-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--primary-color, #1a1a2e);
+        display: block;
+    }
+    
+    .stat-label {
+        font-size: 0.7rem;
+        opacity: 0.7;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 0.2rem;
+    }
+    
+    /* Loading Animation */
+    .loading-spinner {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        border-top-color: var(--primary-color, #1a1a2e);
+        animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 992px) {
+        .game-content {
+            gap: 1rem;
+        }
+        
+        .game-stats {
+            gap: 1rem;
+        }
+        
+        .stat-item {
+            min-width: 50px;
+        }
+        
+        .matchup-text {
+            font-size: 1.2rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .game-card {
+            padding: 1rem;
+            min-height: auto;
+        }
+        
+        .game-content {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .game-info {
+            flex-direction: column;
+            gap: 1rem;
+            width: 100%;
+        }
+        
+        .game-stats {
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .matchup-text {
+            font-size: 1.1rem;
+        }
+        
+        .btn-group .filter-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+        
+        .filter-controls .btn-group {
+            flex-wrap: wrap;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const teamId = "{{ teamCommonInfo['TEAM_ID'] }}";
+        let currentFilter = 'all';
+        let gameLogData = null;
+        
+        // Filter functionality
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const gamesCards = document.getElementById('games-cards');
+        
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const filter = btn.dataset.filter;
+                applyFilter(filter);
+            });
+        });
+        
+        function applyFilter(filter) {
+            currentFilter = filter;
+            filterButtons.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.filter === filter);
+            });
+            
+            if (gameLogData) {
+                renderCardsView(gameLogData);
+            }
+        }
+        
+        function filterGames(games) {
+            if (currentFilter === 'all') {
+                return games;
+            } else if (currentFilter === 'W' || currentFilter === 'L') {
+                return games.filter(game => game.WL === currentFilter);
+            } else if (currentFilter === 'home') {
+                return games.filter(game => !game.MATCHUP.includes('@'));
+            } else if (currentFilter === 'away') {
+                return games.filter(game => game.MATCHUP.includes('@'));
+            }
+            return games;
+        }
+        
+        function showLoading() {
+            gamesCards.innerHTML = '<div class="text-center py-5"><div class="loading-spinner"></div><p class="mt-3">Loading game log...</p></div>';
+        }
+        
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric',
+                year: '2-digit'
+            });
+        }
+        
+        function formatPercentage(value) {
+            return value ? (value * 100).toFixed(1) + '%' : '0.0%';
+        }
+        
+        function renderCardsView(games) {
+            gamesCards.innerHTML = '';
+            const filteredGames = filterGames(games);
+            
+            if (filteredGames.length === 0) {
+                gamesCards.innerHTML = '<div class="text-center py-5"><p class="opacity-75">No games found for the selected filter.</p></div>';
+                return;
+            }
+            
+            filteredGames.forEach(game => {
+                const isWin = game.WL === 'W';
+                const isHome = !game.MATCHUP.includes('@');
+                
+                const gameCard = document.createElement('div');
+                gameCard.className = `game-card glass-card ${isWin ? '' : 'loss'}`;
+                gameCard.innerHTML = `<a href="/boxscore/${game.Game_ID}" style="text-decoration: none;">
+                    <div class="game-content">
+                        <div class="game-info">
+                            <div class="game-date-section">
+                                <div class="game-date">
+                                    <i class="fas fa-calendar"></i>
+                                    <span>${formatDate(game.GAME_DATE)}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="matchup-section">
+                                <div class="matchup-text">${game.MATCHUP}</div>
+                                <div class="venue-indicator">
+                                    <i class="fas fa-${isHome ? 'home' : 'plane'}"></i>
+                                    <span>${isHome ? 'Home Game' : 'Away Game'}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="record-section">
+                                <div class="record-display">
+                                    <i class="fas fa-chart-line"></i>
+                                    <span>${game.W}-${game.L}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="result-section">
+                            <div class="result-badge ${isWin ? 'win' : 'loss'}">
+                                ${isWin ? 'WIN' : 'LOSS'}
+                            </div>
+                        </div>
+                        
+                        <div class="game-stats">
+                            <div class="stat-item">
+                                <span class="stat-value">${game.PTS}</span>
+                                <span class="stat-label">PTS</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value">${formatPercentage(game.FG_PCT)}</span>
+                                <span class="stat-label">FG%</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value">${game.REB}</span>
+                                <span class="stat-label">REB</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value">${game.AST}</span>
+                                <span class="stat-label">AST</span>
+                            </div>
+                        </div>
+                    </div></a>
+                `;
+                gamesCards.appendChild(gameCard);
+            });
+        }
+        
+        // Fetch and display game log data
+        showLoading();
+        
+        fetch(`/team_game_log/${teamId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error("Error fetching game log:", data.error);
+                    gamesCards.innerHTML = '<div class="text-center py-5"><p class="text-danger">Error loading game log data</p></div>';
+                    return;
+                }
+                
+                gameLogData = data;
+                renderCardsView(data);
+            })
+            .catch(error => {
+                console.error("Error fetching game log:", error);
+                gamesCards.innerHTML = '<div class="text-center py-5"><p class="text-danger">Error loading game log data</p></div>';
+            });
+    });
+</script>

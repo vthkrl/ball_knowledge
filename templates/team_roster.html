@@ -1,62 +1,618 @@
-<div class="container mt-4">
-    <div class="card p-4 shadow-lg bg-dark text-light rounded">
-        <h2 class="text-center mb-3">Team Roster</h2>
-        <img id="head-coach-image" class="img-fluid rounded-circle" style="max-height: 50px;">
-        <p id="head-coach" class="head-coach text-center"></p>
-        <table class="table table-dark table-striped text-center roster-table">
-            <thead>
-                <tr>
-                    <th></th>
-                    <th>Player</th>
-                    <th>Position</th>
-                    <th>Height</th>
-                    <th>Age</th>
-                    <th>PPG</th>
-                    <th>RPG</th>
-                    <th>APG</th>
-                </tr>
-            </thead>
-            <tbody id="roster-body">
-                <!-- Roster data will be inserted here -->
-            </tbody>
-        </table>
+<div class="container mt-5">
+    <div class="glass-card p-5 roster-section">
+        <h3 class="text-center mb-4 display-6 fw-bold roster-title">
+            <i class="fas fa-users-rectangle me-3 title-icon"></i>
+            Team Roster
+        </h3>
+
+        <!-- Head Coach Section -->
+        <div class="coach-section text-center mb-5">
+            <div class="coach-card glass-card p-4">
+                <div class="coach-image-container mb-3">
+                    <img id="head-coach-image" 
+                         class="coach-image img-fluid rounded-circle shadow-lg" 
+                         style="max-height: 120px; width: 120px; object-fit: cover;" 
+                         alt="Head Coach Image">
+                    <div class="coach-image-overlay">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                </div>
+                <h4 id="head-coach" class="coach-name fs-4 fw-bold mb-2"></h4>
+                <p class="coach-title opacity-75">HEAD COACH</p>
+            </div>
+        </div>
+
+        <!-- Players Grid/Table Toggle -->
+        <div class="view-toggle mb-4 text-center">
+            <div class="btn-group glass-card" role="group">
+                <button type="button" class="btn view-btn active" data-view="grid">
+                    <i class="fas fa-th me-2"></i>Grid View
+                </button>
+                <button type="button" class="btn view-btn" data-view="table">
+                    <i class="fas fa-table me-2"></i>Table View
+                </button>
+            </div>
+        </div>
+
+        <!-- Grid View -->
+        <div id="roster-grid" class="roster-grid">
+            <!-- Players will be populated here -->
+        </div>
+
+        <!-- Table View -->
+        <div id="roster-table" class="table-responsive" style="display: none;">
+            <table class="table modern-table text-center">
+                <thead>
+                    <tr class="table-header">
+                        <th></th>
+                        <th>Player</th>
+                        <th>Position</th>
+                        <th>Height</th>
+                        <th>Age</th>
+                        <th>PPG</th>
+                        <th>RPG</th>
+                        <th>APG</th>
+                    </tr>
+                </thead>
+                <tbody id="roster-body">
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
+<style>
+    /* Roster Section Styles */
+    .roster-section {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .roster-title {
+        position: relative;
+        background: linear-gradient(45deg, var(--primary-color, #1a1a2e), var(--secondary-color, #16213e));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .title-icon {
+        background: linear-gradient(45deg, var(--primary-color, #1a1a2e), var(--secondary-color, #16213e));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    }
+    
+    /* Coach Section */
+    .coach-section {
+        margin: 3rem 0;
+    }
+    
+    .coach-card {
+        display: inline-block;
+        padding: 2rem;
+        border-radius: 25px;
+        position: relative;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        background: rgba(255, 255, 255, 0.08) !important;
+        backdrop-filter: blur(25px);
+        border: 2px solid rgba(255, 255, 255, 0.15) !important;
+    }
+    
+    .coach-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+    
+    .coach-image-container {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .coach-image {
+        border: 4px solid rgba(255, 255, 255, 0.3) !important;
+        transition: all 0.4s ease;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .coach-image:hover {
+        transform: scale(1.1);
+        border-color: var(--primary-color, #1a1a2e) !important;
+    }
+    
+    .coach-image-overlay {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        width: 35px;
+        height: 35px;
+        background: linear-gradient(135deg, var(--primary-color, #1a1a2e), var(--secondary-color, #16213e));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.9rem;
+        z-index: 3;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .coach-name {
+        background: linear-gradient(45deg, var(--primary-color, #1a1a2e), var(--secondary-color, #16213e));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .coach-title {
+        font-size: 0.85rem;
+        letter-spacing: 2px;
+        font-weight: 600;
+    }
+    
+    /* View Toggle */
+    .view-toggle {
+        margin: 2rem 0;
+    }
+    
+    .btn-group .view-btn {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        color: inherit !important;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-group .view-btn:hover {
+        background: rgba(255, 255, 255, 0.2) !important;
+        transform: translateY(-2px);
+    }
+    
+    .btn-group .view-btn.active {
+        background: linear-gradient(135deg, var(--primary-color, #1a1a2e), var(--secondary-color, #16213e)) !important;
+        color: white !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Roster Grid */
+    .roster-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    .player-card {
+        background: rgba(255, 255, 255, 0.06) !important;
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        border-radius: 20px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        text-decoration: none !important;
+        color: inherit !important;
+    }
+    
+    .player-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+        transition: left 0.6s;
+    }
+    
+    .player-card:hover::before {
+        left: 100%;
+    }
+    
+    .player-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        border-color: var(--primary-color, #1a1a2e) !important;
+    }
+    
+    .player-image-container {
+        position: relative;
+        margin-bottom: 1rem;
+        display: inline-block;
+    }
+    
+    .player-image {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 3px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .player-image:hover {
+        transform: scale(1.1);
+        border-color: var(--secondary-color, #16213e);
+    }
+    
+    .player-position-badge {
+        position: absolute;
+        bottom: -5px;
+        right: -5px;
+        background: linear-gradient(135deg, var(--primary-color, #1a1a2e), var(--secondary-color, #16213e));
+        color: white;
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 0.2rem 0.5rem;
+        border-radius: 12px;
+        z-index: 3;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .player-name {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(45deg, var(--primary-color, #1a1a2e), var(--secondary-color, #16213e));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .player-details {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+    
+    .player-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 1rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .stat-item {
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary-color, #1a1a2e);
+        display: block;
+    }
+    
+    .stat-label {
+        font-size: 0.75rem;
+        opacity: 0.7;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 0.2rem;
+    }
+    
+    /* Modern Table Styles */
+    .modern-table {
+        background: rgba(255, 255, 255, 0.03) !important;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(20px);
+    }
+    
+    .table-header th {
+        background: linear-gradient(135deg, var(--primary-color, #1a1a2e), var(--secondary-color, #16213e)) !important;
+        color: white !important;
+        border: none !important;
+        padding: 1.5rem 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.85rem;
+        position: relative;
+    }
+    
+    .table-header th::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    }
+    
+    .modern-table tbody tr {
+        background: rgba(255, 255, 255, 0.02) !important;
+        border: none !important;
+        transition: all 0.3s ease;
+    }
+    
+    .modern-table tbody tr:nth-child(even) {
+        background: rgba(255, 255, 255, 0.05) !important;
+    }
+    
+    .modern-table tbody tr:hover {
+        background: linear-gradient(90deg, var(--primary-color, #1a1a2e)20, var(--secondary-color, #16213e)20) !important;
+        transform: scale(1.005);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .modern-table td {
+        vertical-align: middle;
+        border: none !important;
+        padding: 1.25rem 1rem;
+        font-size: 1rem;
+        font-weight: 500;
+    }
+    
+    .modern-table td a {
+        text-decoration: none !important;
+        color: inherit !important;
+        transition: all 0.3s ease;
+    }
+    
+    .modern-table td a:hover {
+        color: var(--primary-color, #1a1a2e) !important;
+        text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    .table-player-image {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .table-player-image:hover {
+        transform: scale(1.15);
+        border-color: var(--secondary-color, #16213e);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .roster-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        .coach-card {
+            padding: 1.5rem;
+        }
+        
+        .coach-image {
+            max-height: 100px !important;
+            width: 100px !important;
+        }
+        
+        .player-card {
+            padding: 1rem;
+        }
+        
+        .modern-table {
+            font-size: 0.9rem;
+        }
+        
+        .table-header th {
+            padding: 1rem 0.5rem;
+            font-size: 0.75rem;
+        }
+        
+        .modern-table td {
+            padding: 1rem 0.5rem;
+        }
+    }
+    
+    /* Loading Animation */
+    .loading-spinner {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        border-top-color: var(--primary-color, #1a1a2e);
+        animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const teamId = "{{ teamCommonInfo['TEAM_ID'] }}"; // Ensure team_id is passed when including this file
+        const teamId = "{{ teamCommonInfo['TEAM_ID'] }}";
+        let currentView = 'grid';
+        let rosterData = null;
+        
+        // View toggle functionality
+        const viewButtons = document.querySelectorAll('.view-btn');
+        const rosterGrid = document.getElementById('roster-grid');
+        const rosterTable = document.getElementById('roster-table');
+        
+        viewButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const view = btn.dataset.view;
+                switchView(view);
+            });
+        });
+        
+        function switchView(view) {
+            currentView = view;
+            viewButtons.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.view === view);
+            });
+            
+            if (view === 'grid') {
+                rosterGrid.style.display = 'grid';
+                rosterTable.style.display = 'none';
+            } else {
+                rosterGrid.style.display = 'none';
+                rosterTable.style.display = 'block';
+            }
+        }
+        
+        // Show loading spinner
+        function showLoading() {
+            rosterGrid.innerHTML = '<div class="text-center py-5"><div class="loading-spinner"></div><p class="mt-3">Loading roster...</p></div>';
+        }
+        
+        // Utility functions (assuming they exist in parent page)
+        function getContrastColor(hexColor) {
+            if (!hexColor) return '#ffffff';
+            hexColor = hexColor.replace('#', '');
+            const r = parseInt(hexColor.substr(0, 2), 16);
+            const g = parseInt(hexColor.substr(2, 2), 16);
+            const b = parseInt(hexColor.substr(4, 2), 16);
+            const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+            return brightness > 128 ? '#000000' : '#ffffff';
+        }
+        
+        function adjustColor(hexColor, percent) {
+            if (!hexColor) return '#1a1a2e';
+            hexColor = hexColor.replace('#', '');
+            const num = parseInt(hexColor, 16);
+            const amt = Math.round(2.55 * percent);
+            const R = (num >> 16) + amt;
+            const G = (num >> 8 & 0x00FF) + amt;
+            const B = (num & 0x0000FF) + amt;
+            return "#" + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+                (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
+                (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
+        }
+        
+        // Render grid view
+        function renderGridView(data) {
+            rosterGrid.innerHTML = '';
+            data.teamRoster.forEach(player => {
+                const playerCard = document.createElement('a');
+                playerCard.href = `/player_stats/${player.PLAYER_ID}`;
+                playerCard.className = 'player-card glass-card';
+                playerCard.innerHTML = `
+                    <div class="player-image-container">
+                        <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/${player.PLAYER_ID}.png" 
+                             alt="${player.PLAYER}" 
+                             class="player-image"
+                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiNmMGYwZjAiLz4KPHN2ZyB4PSIyMCIgeT0iMjAiPgo8cGF0aCBkPSJNMjAgMTVjMC01LjUgNC41LTEwIDEwLTEwczEwIDQuNSAxMCAxMC00LjUgMTAtMTAgMTAtMTAtNC41LTEwLTEwek0xMCA0NWMwLTUuNSA0LjUtMTAgMTAtMTBoMjBjNS41IDAgMTAgNC41IDEwIDEwdjEwSDEwVjQ1eiIgZmlsbD0iIzk5OTk5OSIvPgo8L3N2Zz4KPC9zdmc+'">
+                        <div class="player-position-badge">${player.POSITION}</div>
+                    </div>
+                    <h5 class="player-name">${player.PLAYER}</h5>
+                    <div class="player-details">
+                        <span><i class="fas fa-ruler-vertical me-1"></i>${player.HEIGHT}</span>
+                        <span><i class="fas fa-calendar-alt me-1"></i>${player.AGE} yrs</span>
+                    </div>
+                    <div class="player-stats">
+                        <div class="stat-item">
+                            <span class="stat-value">${player.PPG}</span>
+                            <span class="stat-label">PPG</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">${player.RPG}</span>
+                            <span class="stat-label">RPG</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">${player.APG}</span>
+                            <span class="stat-label">APG</span>
+                        </div>
+                    </div>
+                `;
+                rosterGrid.appendChild(playerCard);
+            });
+        }
+        
+        // Render table view
+        function renderTableView(data) {
+            const rosterBody = document.getElementById("roster-body");
+            rosterBody.innerHTML = '';
+            data.teamRoster.forEach(player => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>
+                        <a href='/player_stats/${player.PLAYER_ID}'>
+                            <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/${player.PLAYER_ID}.png" 
+                                 alt="${player.PLAYER}" 
+                                 class="table-player-image"
+                                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMzAiIGZpbGw9IiNmMGYwZjAiLz4KPHN2ZyB4PSIxNSIgeT0iMTUiPgo8cGF0aCBkPSJNMTUgMTBjMC00IDMtNyA3LTdzNyAzIDcgNy0zIDctNyA3LTctMy03LTd6TTcuNSAzMGMwLTQgMy03IDctN2gxNWM0IDAgNyAzIDcgN3Y3SDcuNVYzMHoiIGZpbGw9IiM5OTk5OTkiLz4KPC9zdmc+Cjwvc3ZnPg=='">
+                        </a>
+                    </td>
+                    <td><a href='/player_stats/${player.PLAYER_ID}' class="fw-bold">${player.PLAYER}</a></td>
+                    <td><span class="badge rounded-pill" style="background: var(--primary-color, #1a1a2e); color: white; padding: 0.5rem 1rem;">${player.POSITION}</span></td>
+                    <td>${player.HEIGHT}</td>
+                    <td>${player.AGE}</td>
+                    <td><strong>${player.PPG}</strong></td>
+                    <td><strong>${player.RPG}</strong></td>
+                    <td><strong>${player.APG}</strong></td>
+                `;
+                rosterBody.appendChild(row);
+            });
+        }
+        
+        // Fetch and display roster data
+        showLoading();
+        
         fetch(`/roster/${teamId}`)
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
                     console.error("Error fetching roster:", data.error);
+                    rosterGrid.innerHTML = '<div class="text-center py-5"><p class="text-danger">Error loading roster data</p></div>';
                     return;
                 }
                 
+                rosterData = data;
+                
+                // Update head coach
                 const headCoachImg = document.getElementById("head-coach-image");
-                headCoachImg.src = `https://cdn.nba.com/headshots/nba/latest/1040x760/${data.headCoach.COACH_ID}.png`
-                // Insert head coach info
-                const headCoachElem = document.getElementById("head-coach");
-                headCoachElem.textContent = `Head Coach: ${data.headCoach.COACH_NAME}`;
+                headCoachImg.src = `https://cdn.nba.com/headshots/nba/latest/1040x760/${data.headCoach.COACH_ID}.png`;
+                headCoachImg.alt = `${data.headCoach.COACH_NAME} Head Coach`;
+                headCoachImg.onerror = function() {
+                    this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjYwIiBjeT0iNjAiIHI9IjYwIiBmaWxsPSIjZjBmMGYwIi8+Cjxzdmcgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiB4PSIyMCIgeT0iMjAiPgo8cGF0aCBkPSJNNDAgMjVjMC04IDYtMTUgMTUtMTVzMTUgNyAxNSAxNS02IDE1LTE1IDE1LTE1LTctMTUtMTV6TTIwIDcwYzAtOCA2LTE1IDE1LTE1aDMwYzguNSAwIDE1IDcgMTUgMTV2MTVIMjBWNzB6IiBmaWxsPSIjOTk5OTk5Ii8+Cjwvc3ZnPgo8L3N2Zz4=';
+                };
 
-                // Insert roster
-                const rosterBody = document.getElementById("roster-body");
-                data.teamRoster.forEach(player => {
-                    const row = document.createElement("tr");
-                    row.innerHTML = `
-                        <td><img src="https://cdn.nba.com/headshots/nba/latest/1040x760/${player.PLAYER_ID}.png" alt="${player.PLAYER}" class="img-fluid rounded-circle" style="max-height: 50px;"></td>
-                        <td>${player.PLAYER}</td>
-                        <td>${player.POSITION}</td>
-                        <td>${player.HEIGHT}</td>
-                        <td>${player.AGE}</td>
-                        <td>${player.PPG}</td>
-                        <td>${player.RPG}</td>
-                        <td>${player.APG}</td>
-                    `;
-                    rosterBody.appendChild(row);
-                });
+                const headCoachElem = document.getElementById("head-coach");
+                headCoachElem.textContent = data.headCoach.COACH_NAME;
+
+                // Render current view
+                if (currentView === 'grid') {
+                    renderGridView(data);
+                } else {
+                    renderTableView(data);
+                }
+                
+                // Apply dynamic team colors if available
+                const teamColorsStyle = document.getElementById('team-colors-style');
+                if (teamColorsStyle) {
+                    // Get colors from CSS custom properties set by parent page
+                    const rootStyles = getComputedStyle(document.documentElement);
+                    const primaryColor = rootStyles.getPropertyValue('--primary-color') || '#1a1a2e';
+                    const secondaryColor = rootStyles.getPropertyValue('--secondary-color') || '#16213e';
+                    
+                    // Update CSS custom properties for this component
+                    document.documentElement.style.setProperty('--primary-color', primaryColor);
+                    document.documentElement.style.setProperty('--secondary-color', secondaryColor);
+                    document.documentElement.style.setProperty('--primary-color-light', adjustColor(primaryColor, 20));
+                    document.documentElement.style.setProperty('--secondary-color-light', adjustColor(secondaryColor, 15));
+                }
             })
-            .catch(error => console.error("Error fetching roster:", error));
+            .catch(error => {
+                console.error("Error fetching roster:", error);
+                rosterGrid.innerHTML = '<div class="text-center py-5"><p class="text-danger">Error loading roster data</p></div>';
+            });
     });
 </script>

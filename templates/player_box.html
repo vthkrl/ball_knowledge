@@ -5,118 +5,398 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Player Performance</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="{{ url_for('static', filename='js/dark_mode.js') }}" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary-blue: #1e40af;
+            --secondary-blue: #3b82f6;
+            --accent-orange: #f97316;
+            --success-green: #10b981;
+            --danger-red: #ef4444;
+            --dark-bg: #0f172a;
+            --card-bg: #1e293b;
+            --surface-bg: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #64748b;
+            --border-color: #334155;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #1a202c 100%);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--secondary-blue), var(--accent-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .player-card {
+            background: linear-gradient(135deg, var(--card-bg) 0%, var(--surface-bg) 100%);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin: 0 auto;
+            max-width: 800px;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .player-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-blue), var(--secondary-blue), var(--accent-orange));
+        }
+
+        .player-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .player-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--secondary-blue);
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-lg);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .player-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3);
+        }
+
+        .player-name {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .game-info {
+            background: var(--surface-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .game-matchup {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .team-logo {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .vs-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .game-score {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-orange);
+            margin-bottom: 0.5rem;
+        }
+
+        .game-status {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--secondary-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .game-time {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .stat-card {
+            background: var(--surface-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--secondary-blue), var(--accent-orange));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--secondary-blue);
+        }
+
+        .stat-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Special highlighting for key stats */
+        .stat-card.highlight-points .stat-value {
+            color: var(--accent-orange);
+        }
+
+        .stat-card.highlight-rebounds .stat-value {
+            color: var(--success-green);
+        }
+
+        .stat-card.highlight-assists .stat-value {
+            color: var(--secondary-blue);
+        }
+
+        .stat-card.highlight-plusminus .stat-value {
+            color: var(--success-green);
+        }
+
+        .stat-card.highlight-plusminus.negative .stat-value {
+            color: var(--danger-red);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .page-title {
+                font-size: 2rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .player-card {
+                padding: 2rem 1.5rem;
+                margin: 0 1rem;
+            }
+
+            .player-avatar {
+                width: 100px;
+                height: 100px;
+            }
+
+            .player-name {
+                font-size: 1.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+
+            .game-matchup {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .team-logo {
+                width: 35px;
+                height: 35px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-card {
+                padding: 1.25rem;
+            }
+        }
+
+        /* Loading animation */
+        @keyframes shimmer {
+            0% { background-position: -200px 0; }
+            100% { background-position: calc(200px + 100%) 0; }
+        }
+
+        .loading {
+            background: linear-gradient(90deg, var(--surface-bg) 0%, var(--border-color) 50%, var(--surface-bg) 100%);
+            background-size: 200px 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--surface-bg);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--border-color);
+        }
+    </style>
 </head>
 <body>
-
     {% include 'navbar.html' %}
 
     <div class="container mt-4">
-        <h1 class="text-center mb-4">Player Performance</h1>
+        <h1 class="page-title">Player Performance</h1>
         
-        <div class="card mx-auto shadow-sm p-3" style="max-width: 600px;">
-            <div class="card-body text-center">
-                <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/{{ p_id }}.png" alt="{{ player_name }}" class="img-fluid rounded-circle mb-3" style="max-height: 150px;">
-                <h3 class="card-title">{{ player_name }}</h3>
+        <div class="player-card">
+            <div class="player-header">
+                <a href="/player_stats/{{ p_id }}"><img src="https://cdn.nba.com/headshots/nba/latest/1040x760/{{ p_id }}.png" 
+                     alt="{{ player_name }}" 
+                     class="player-avatar"
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjYwIiBjeT0iNjAiIHI9IjYwIiBmaWxsPSIjZjBmMGYwIi8+CjxjaXJjbGUgY3g9IjYwIiBjeT0iNDUiIHI9IjIxIiBmaWxsPSIjOTk5OTk5Ii8+CjxwYXRoIGQ9Ik05MCA5NWMwLTE2LjU2OS0xMy40MzEtMzAtMzAtMzBzLTMwIDEzLjQzMS0zMCAzMCIgZmlsbD0iIzk5OTk5OSIvPgo8L3N2Zz4='"></a>
+                <a href="/player_stats/{{ p_id }}" style="text-decoration: none;"><h2 class="player-name">{{ player_name }}</h2></a>
+            </div>
 
-                <!-- Game Details -->
-                <div class="small text-muted mt-2">
-                    <div class="d-flex align-items-center justify-content-center">
-                        <img src="https://cdn.nba.com/logos/nba/{{ gameDetails['awayTeamId'] }}/primary/L/logo.svg" alt="{{ gameDetails['awayTeamName'] }}" class="me-2" style="height: 30px;">
-                        <span class="mx-2">@</span>
-                        <img src="https://cdn.nba.com/logos/nba/{{ gameDetails['homeTeamId'] }}/primary/L/logo.svg" alt="{{ gameDetails['homeTeamName'] }}" class="ms-2" style="height: 30px;">
-                    </div>
-                    <div class="mt-1">Score: <strong>{{ gameDetails['awayTeamScore'] }} - {{ gameDetails['homeTeamScore'] }}</strong></div>
-                    <div class="mt-1"><strong>{{ gameDetails['gameStatusText'] }}</strong></div>
-                    <div class="mt-1">Time: <strong>{{ gameTimeLTZ }}</strong></div>
+            <div class="game-info">
+                <div class="game-matchup">
+                    <img src="https://cdn.nba.com/logos/nba/{{ gameDetails['awayTeamId'] }}/primary/L/logo.svg" 
+                         alt="{{ gameDetails['awayTeamName'] }}" 
+                         class="team-logo">
+                    <span class="vs-text">@</span>
+                    <img src="https://cdn.nba.com/logos/nba/{{ gameDetails['homeTeamId'] }}/primary/L/logo.svg" 
+                         alt="{{ gameDetails['homeTeamName'] }}" 
+                         class="team-logo">
                 </div>
+                <div class="game-score">{{ gameDetails['awayTeamScore'] }} - {{ gameDetails['homeTeamScore'] }}</div>
+                <div class="game-status">{{ gameDetails['gameStatusText'] }}</div>
+                <div class="game-time"><i class="fas fa-clock me-2"></i>{{ gameTimeLTZ }}</div>
+            </div>
 
-                <!-- Player Stats -->
-                <div class="stats-container mt-3">
-                    <div class="row text-center gy-3">
-                        <div class="col-4">
-                            <h5 id="player-points">{{ stats['PTS'] }}</h5>
-                            <p class="text-muted small">PTS</p>
-                        </div>
-                        <div class="col-4">
-                            <h5 id="player-rebounds">{{ stats['REB'] }}</h5>
-                            <p class="text-muted small">REB</p>
-                        </div>
-                        <div class="col-4">
-                            <h5 id="player-assists">{{ stats['AST'] }}</h5>
-                            <p class="text-muted small">AST</p>
-                        </div>
-                    </div>
-
-                    <div class="row text-center gy-3">
-                        <div class="col-4">
-                            <h5 id="player-steals">{{ stats['STL'] }}</h5>
-                            <p class="text-muted small">STL</p>
-                        </div>
-                        <div class="col-4">
-                            <h5 id="player-blocks">{{ stats['BLK'] }}</h5>
-                            <p class="text-muted small">BLK</p>
-                        </div>
-                        <div class="col-4">
-                            <h5 id="player-fg">{{ stats['FGM'] }}-{{ stats['FGA'] }}</h5>
-                            <p class="text-muted small">FGM-FGA</p>
-                        </div>
-                    </div>
-
-                    <div class="row text-center gy-3">
-                        <div class="col-4">
-                            <h5 id="player-three">{{ stats['3PM'] }}-{{ stats['3PA'] }}</h5>
-                            <p class="text-muted small">3PM-3PA</p>
-                        </div>
-                        <div class="col-4">
-                            <h5 id="player-ft">{{ stats['FTM'] }}-{{ stats['FTA'] }}</h5>
-                            <p class="text-muted small">FTM-FTA</p>
-                        </div>
-                        <div class="col-4">
-                            <h5 id="player-mins"></h5>
-                            <p class="text-muted small">MIN</p>
-                        </div>
-                    </div>
-
-                    <div class="row text-center gy-3 justify-content-center">
-                        <div class="col-4">
-                            <h5 id="player-plusminus">{{ stats['+/-'] }}</h5>
-                            <p class="text-muted small">+/-</p>
-                        </div>
-                    </div>
+            <div class="stats-grid">
+                <div class="stat-card highlight-points">
+                    <span class="stat-value" id="player-points">{{ stats['PTS'] }}</span>
+                    <div class="stat-label">Points</div>
+                </div>
+                <div class="stat-card highlight-rebounds">
+                    <span class="stat-value" id="player-rebounds">{{ stats['REB'] }}</span>
+                    <div class="stat-label">Rebounds</div>
+                </div>
+                <div class="stat-card highlight-assists">
+                    <span class="stat-value" id="player-assists">{{ stats['AST'] }}</span>
+                    <div class="stat-label">Assists</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="player-steals">{{ stats['STL'] }}</span>
+                    <div class="stat-label">Steals</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="player-blocks">{{ stats['BLK'] }}</span>
+                    <div class="stat-label">Blocks</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="player-mins"></span>
+                    <div class="stat-label">Minutes</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="player-fg">{{ stats['FGM'] }}-{{ stats['FGA'] }}</span>
+                    <div class="stat-label">Field Goals</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="player-three">{{ stats['3PM'] }}-{{ stats['3PA'] }}</span>
+                    <div class="stat-label">3-Pointers</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="player-ft">{{ stats['FTM'] }}-{{ stats['FTA'] }}</span>
+                    <div class="stat-label">Free Throws</div>
+                </div>
+                <div class="stat-card highlight-plusminus {{ 'negative' if stats['+/-']|int < 0 else '' }}">
+                    <span class="stat-value" id="player-plusminus">{{ stats['+/-'] }}</span>
+                    <div class="stat-label">Plus/Minus</div>
                 </div>
             </div>
         </div>
     </div>
-
-    <style>
-        .card {
-            padding-bottom: 5%;
-        }
-
-        .stats-container {
-            border-top: 1px solid #ddd;
-            padding-top: 15px;
-            margin-top: 20px;
-        }
-
-        .stats-container .row {
-            margin-bottom: 10px;
-        }
-
-        .stats-container h5 {
-            font-weight: bold;
-            margin-bottom: 5px;
-            font-size: 1.25rem;
-        }
-
-        .stats-container p {
-            margin-bottom: 0;
-            font-size: 0.9rem;
-        }
-    </style>
 
     <script>
         var refreshRate = 5000;
@@ -130,28 +410,33 @@
                     document.getElementById('player-assists').textContent = data.statistics.AST || '0';
                     document.getElementById('player-steals').textContent = data.statistics.STL || '0';
                     document.getElementById('player-blocks').textContent = data.statistics.BLK || '0';
-                    document.getElementById('player-fg').textContent = `${data.statistics.FGM}-${data.statistics.FGA}` || '0';
-                    document.getElementById('player-three').textContent = `${data.statistics["3PM"]}-${data.statistics["3PA"]}` || '0';
-                    document.getElementById('player-ft').textContent = `${data.statistics.FTM}-${data.statistics.FTA}` || '0';
+                    document.getElementById('player-fg').textContent = `${data.statistics.FGM}-${data.statistics.FGA}` || '0-0';
+                    document.getElementById('player-three').textContent = `${data.statistics["3PM"]}-${data.statistics["3PA"]}` || '0-0';
+                    document.getElementById('player-ft').textContent = `${data.statistics.FTM}-${data.statistics.FTA}` || '0-0';
                     document.getElementById('player-plusminus').textContent = data.statistics["+/-"] || '0';
                     document.getElementById('player-mins').textContent = formatMinutes(data.statistics.MIN) || '0';
+                    
+                    // Update plus/minus styling
+                    const plusMinusCard = document.getElementById('player-plusminus').closest('.stat-card');
+                    const plusMinusValue = parseInt(data.statistics["+/-"]) || 0;
+                    plusMinusCard.classList.toggle('negative', plusMinusValue < 0);
                 })
                 .catch(error => console.error('Error updating player stats:', error));
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            document.getElementById('player-mins').textContent = formatMinutes("{{ stats['MIN'] }}")
+            document.getElementById('player-mins').textContent = formatMinutes("{{ stats['MIN'] }}");
             const gameId = "{{ game_id }}";
             const playerId = "{{ p_id }}";
             setInterval(() => updatePlayerStats(gameId, playerId), refreshRate);
         });
 
         function formatMinutes(durationStr) {
-        const match = durationStr.match(/PT(\d+)M/);
-        if (match) {
-            return parseInt(match[1], 10);
-        }
-        return 0;
+            const match = durationStr.match(/PT(\d+)M/);
+            if (match) {
+                return parseInt(match[1], 10);
+            }
+            return 0;
         }
     </script>
 

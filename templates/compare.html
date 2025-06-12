@@ -6,62 +6,406 @@
     <title>Ball Knowledge</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="{{ url_for('static', filename='js/dark_mode.js') }}" defer></script>
     <style>
-        th {text-align: center;}
-        td {text-align: center;}
+        /* Base modern styles */
+        * {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: white;
+        }
+        
+        .glass-card {
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .floating-elements {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .floating-circle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .floating-circle:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 20%;
+            left: 10%;
+            background: #ff6b6b;
+            animation-delay: 0s;
+        }
+        
+        .floating-circle:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            top: 60%;
+            right: 15%;
+            background: #4ecdc4;
+            animation-delay: 2s;
+        }
+        
+        .floating-circle:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            bottom: 30%;
+            left: 20%;
+            background: #45b7d1;
+            animation-delay: 4s;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+        }
+        
+        .page-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+        
+        .compare-form {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.08));
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-label {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #ffffff;
+            margin-bottom: 0.75rem;
+            display: block;
+            text-align: center;
+        }
+        
+        .form-control, .form-select {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            color: white;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #4ecdc4;
+            box-shadow: 0 0 0 0.2rem rgba(78, 205, 196, 0.25);
+            color: white;
+        }
+        
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .form-select option {
+            background: #1a1a2e;
+            color: white;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #4ecdc4, #45b7d1);
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            box-shadow: 0 8px 20px rgba(78, 205, 196, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #45b7d1, #4ecdc4);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(78, 205, 196, 0.4);
+        }
+        
+        .suggestions-list {
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .suggestions-list .list-group-item {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .suggestions-list .list-group-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .suggestions-list .list-group-item:last-child {
+            border-bottom: none;
+        }
+        
+        .player-image {
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));
+        }
+        
+        .comparison-section {
+            margin-top: 4rem;
+        }
+        
+        .player-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.08));
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .player-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .player-card h4 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, #4ecdc4, #45b7d1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .player-card img {
+            max-height: 180px;
+            border-radius: 15px;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .player-card:hover img {
+            transform: scale(1.05);
+        }
+        
+        .stats-table {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 2rem;
+            overflow-x: auto;
+        }
+        
+        .stats-table table {
+            color: white;
+            border: none;
+        }
+        
+        .stats-table th {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.08));
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-weight: 600;
+            text-align: center;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .stats-table td {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+        }
+        
+        .alert-danger {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(255, 107, 107, 0.1));
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            color: #ff6b6b;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2.5rem;
+            }
+            
+            .compare-form {
+                padding: 1.5rem;
+            }
+            
+            .form-control {
+                width: 100% !important;
+            }
+            
+            .suggestions-list {
+                width: 100% !important;
+            }
+            
+            .player-card img {
+                max-height: 150px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .compare-form {
+                padding: 1rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
-
     {% include 'navbar.html' %}
+    
+    <!-- Floating Background Elements -->
+    <div class="floating-elements">
+        <div class="floating-circle"></div>
+        <div class="floating-circle"></div>
+        <div class="floating-circle"></div>
+    </div>
+    
+    <!-- Header Section -->
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-users me-3"></i>
+            Ball Knowledge
+        </h1>
+        <p class="lead opacity-75">Compare NBA players head-to-head</p>
+    </div>
 
     <!-- Main Content -->
-    <div class="container mt-4">
-        <h1 class="text-center mb-4">Welcome to Ball Knowledge</h1>
+    <div class="container">
+        <!-- Compare Form -->
+        <div class="compare-form glass-card">
+            <form method="POST" id="compareForm">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="position-relative">
+                            <label for="player1" class="form-label">
+                                <i class="fas fa-user me-2"></i>Player 1
+                            </label>
+                            <input type="text" id="player1" name="player1" class="form-control" required autocomplete="off" onkeyup="fetchPlayerSuggestions(this.value, 'player1-suggestions')" placeholder="Search for first player...">
+                            <ul id="player1-suggestions" class="suggestions-list list-group position-absolute w-100 mt-1" style="z-index: 1000;"></ul>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <div class="position-relative">
+                            <label for="player2" class="form-label">
+                                <i class="fas fa-user me-2"></i>Player 2
+                            </label>
+                            <input type="text" id="player2" name="player2" class="form-control" required autocomplete="off" onkeyup="fetchPlayerSuggestions(this.value, 'player2-suggestions')" placeholder="Search for second player...">
+                            <ul id="player2-suggestions" class="suggestions-list list-group position-absolute w-100 mt-1" style="z-index: 1000;"></ul>
+                        </div>
+                    </div>
+                </div>
+                            
+                <div class="mb-4">
+                    <label for="statsType" class="form-label">
+                        <i class="fas fa-chart-bar me-2"></i>Statistics Type
+                    </label>
+                    <select id="statsType" name="statsType" class="form-select w-50 mx-auto">
+                        <option value="current">Current Season Stats</option>
+                        <option value="career">Career Stats</option>
+                    </select>
+                </div>
+                
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-balance-scale me-2"></i>Compare Players
+                    </button>
+                </div>
+            </form>
+        </div>
         
-        <form method="POST" class="mt-4" id="compareForm">
-            <div class="mb-3 position-relative">
-                <label for="player1" class="form-label">Player 1</label>
-                <input type="text" id="player1" name="player1" class="form-control w-50 mx-auto" required autocomplete="off" onkeyup="fetchPlayerSuggestions(this.value, 'player1-suggestions')">
-                <ul id="player1-suggestions" class="list-group position-absolute start-50 translate-middle-x w-50" style="z-index: 1000;"></ul>
+        <!-- Comparison Results -->
+        {% if table %}
+        <div class="comparison-section">
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <div class="player-card glass-card">
+                        <h4>{{ p1 }}</h4>
+                        <img src="{{ p1_image }}" alt="{{ p1 }}" class="img-fluid">
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="player-card glass-card">
+                        <h4>{{ p2 }}</h4>
+                        <img src="{{ p2_image }}" alt="{{ p2 }}" class="img-fluid">
+                    </div>
+                </div>
             </div>
             
-            <div class="mb-3 position-relative">
-                <label for="player2" class="form-label">Player 2</label>
-                <input type="text" id="player2" name="player2" class="form-control w-50 mx-auto" required autocomplete="off" onkeyup="fetchPlayerSuggestions(this.value, 'player2-suggestions')">
-                <ul id="player2-suggestions" class="list-group position-absolute start-50 translate-middle-x w-50" style="z-index: 1000;"></ul>
-            </div>            
-                        
-            <div class="mb-3">
-                <label for="statsType" class="form-label">Statistics Type</label>
-                <select id="statsType" name="statsType" class="form-select w-50 mx-auto">
-                    <option value="current">Current Season Stats</option>
-                    <option value="career">Career Stats</option>
-                </select>
+            <div class="stats-table glass-card">
+                {{ table | safe }}
             </div>
-            <div class="text-center">
-                <button type="submit" class="btn btn-primary">Compare</button>
-            </div>
-        </form>
-        
-        {% if table %}
-        <div class="row mt-5">
-            <div class="col-md-6 text-center">
-                <h4>{{ p1 }}</h4>
-                <img src="{{ p1_image }}" alt="{{ p1 }}" class="img-fluid rounded" style="max-height: 150px;">
-            </div>
-            <div class="col-md-6 text-center">
-                <h4>{{ p2 }}</h4>
-                <img src="{{ p2_image }}" alt="{{ p2 }}" class="img-fluid rounded" style="max-height: 150px;">
-            </div>
-        </div>
-        <div class="mt-4">  
-            {{ table | safe }}
         </div>
         {% elif error %}
-        <div class="alert alert-danger mt-5">{{ error }}</div>
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+        </div>
         {% endif %}
     </div>
 
@@ -75,10 +419,6 @@
             }
         }
 
-        
-    </script>
-
-    <script>
         function fetchPlayerSuggestions(query, listId) {
             if (query.length < 2) {
                 document.getElementById(listId).innerHTML = '';
@@ -99,13 +439,15 @@
                         let playerImage = document.createElement('img');
                         playerImage.src = player[1];  // Correct usage of image URL
                         playerImage.alt = player[0];
-                        playerImage.classList.add('me-2', 'rounded-circle');
-                        playerImage.style.width = '55px';
+                        playerImage.classList.add('player-image', 'me-3');
+                        playerImage.style.width = '40px';
                         playerImage.style.height = '40px';
 
                         // Add player name text
                         let playerName = document.createElement('span');
                         playerName.textContent = player[0];
+                        playerName.style.fontSize = '0.95rem';
+                        playerName.style.fontWeight = '500';
 
                         listItem.appendChild(playerImage);
                         listItem.appendChild(playerName);
@@ -123,14 +465,12 @@
 
         // Hide suggestions when clicking outside
         document.addEventListener('click', function(e) {
-            if (!e.target.closest('.mb-3')) {
+            if (!e.target.closest('.position-relative')) {
                 document.getElementById('player1-suggestions').innerHTML = '';
                 document.getElementById('player2-suggestions').innerHTML = '';
             }
         });
     </script>
-
-
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 
